@@ -1,1 +1,76 @@
-login.jsx
+import React, { useState } from 'react';
+import { StyleSheet, View, Text, TextInput, TouchableOpacity } from 'react-native';
+import { Link, useRouter } from 'expo-router';
+
+const Login = () => {
+  const [email, setEmail] = useState('');
+  const [password, setPassword] = useState('');
+  const [error, setError] = useState('');
+  const router = useRouter();
+
+  const handleLogin = async () => {
+    // TODO: Replace w/ supabase logic
+    if (!email || !password) {
+      setError('Please enter email and password');
+      return;
+    }
+    // Simulate login
+    setError('');
+    router.replace('/');
+  };
+
+  return (
+    <View style={styles.container}>
+      <Text style={styles.title}>Login to XP List</Text>
+      {error ? <Text style={styles.error}>{error}</Text> : null}
+      <TextInput
+        style={styles.input}
+        placeholder="Email"
+        placeholderTextColor="#8b7b9e"
+        value={email}
+        onChangeText={setEmail}
+        autoCapitalize="none"
+        keyboardType="email-address"
+      />
+      <TextInput
+        style={styles.input}
+        placeholder="Password"
+        placeholderTextColor="#8b7b9e"
+        value={password}
+        onChangeText={setPassword}
+        secureTextEntry
+      />
+      <TouchableOpacity style={styles.btn} onPress={handleLogin}>
+        <Text style={styles.btnText}>Login</Text>
+      </TouchableOpacity>
+      <Link href="/signup" style={styles.link}>Don't have an account? Sign up</Link>
+    </View>
+  );
+};
+
+export default Login;
+
+const styles = StyleSheet.create({
+  container: {
+    flex: 1, justifyContent: 'center', alignItems: 'center', backgroundColor: '#2c2137', padding: 24,
+  },
+  title: {
+    color: '#ffd700', fontSize: 22, fontWeight: 'bold', marginBottom: 24,
+  },
+  input: {
+    width: '100%', maxWidth: 320, backgroundColor: '#3a2f4c', color: '#fff',
+    borderRadius: 8, padding: 12, marginBottom: 16, fontSize: 16,
+  },
+  btn: {
+    backgroundColor: '#ffd700', borderRadius: 8, padding: 12, width: '100%', maxWidth: 320, alignItems: 'center', marginBottom: 16,
+  },
+  btnText: {
+    color: '#2c2137', fontWeight: 'bold', fontSize: 16,
+  },
+  link: {
+    color: '#ffd700', marginTop: 8, textDecorationLine: 'underline',
+  },
+  error: {
+    color: '#d32f2f', marginBottom: 12,
+  },
+});

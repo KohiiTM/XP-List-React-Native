@@ -201,7 +201,7 @@ const styles = StyleSheet.create({
     marginTop: 8,
   },
   sidebar: {
-    width: 120,
+    width: 40,
     backgroundColor: '#4a3f5c',
     borderRadius: 12,
     padding: 8,

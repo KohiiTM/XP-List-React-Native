@@ -1,0 +1,68 @@
+import React from 'react';
+import { StyleSheet, View, Text, Image, TouchableOpacity } from 'react-native';
+import { useRouter } from 'expo-router';
+import ProfileIcon from '../assets/images/icon.png';
+
+const Profile = () => {
+  // TODO: Replace w/ user data from state/store
+  const user = {
+    username: 'User123',
+    email: 'user@example.com',
+    level: 5,
+    xp: 320,
+    sprite: ProfileIcon,
+  };
+  const router = useRouter();
+
+  const handleLogout = () => {
+    // TODO: supabase logic
+    router.replace('/login');
+  };
+
+  return (
+    <View style={styles.container}>
+      <Image source={user.sprite} style={styles.avatar} />
+      <Text style={styles.username}>{user.username}</Text>
+      <Text style={styles.email}>{user.email}</Text>
+      <View style={styles.levelBox}>
+        <Text style={styles.level}>Level: {user.level}</Text>
+        <Text style={styles.xp}>XP: {user.xp}</Text>
+      </View>
+      <TouchableOpacity style={styles.btn} onPress={handleLogout}>
+        <Text style={styles.btnText}>Logout</Text>
+      </TouchableOpacity>
+    </View>
+  );
+};
+
+export default Profile;
+
+const styles = StyleSheet.create({
+  container: {
+    flex: 1, alignItems: 'center', justifyContent: 'center', backgroundColor: '#2c2137', padding: 24,
+  },
+  avatar: {
+    width: 80, height: 80, borderRadius: 40, marginBottom: 16,
+  },
+  username: {
+    color: '#ffd700', fontSize: 22, fontWeight: 'bold', marginBottom: 4,
+  },
+  email: {
+    color: '#fff', fontSize: 16, marginBottom: 16,
+  },
+  levelBox: {
+    backgroundColor: '#4a3f5c', borderRadius: 12, padding: 16, marginBottom: 24, alignItems: 'center',
+  },
+  level: {
+    color: '#ffd700', fontWeight: 'bold', fontSize: 18,
+  },
+  xp: {
+    color: '#fff', fontSize: 16,
+  },
+  btn: {
+    backgroundColor: '#d32f2f', borderRadius: 8, padding: 12, width: 160, alignItems: 'center',
+  },
+  btnText: {
+    color: '#fff', fontWeight: 'bold', fontSize: 16,
+  },
+});
