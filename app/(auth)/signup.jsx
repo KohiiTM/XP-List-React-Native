@@ -62,7 +62,10 @@ const Signup = () => {
       <TouchableOpacity style={styles.btn} onPress={handleSignup}>
         <Text style={styles.btnText}>Sign Up</Text>
       </TouchableOpacity>
-      <Link href="/login" style={styles.link}>Already have an account? Login</Link>
+
+      
+
+      <Link href="/login" style={[styles.link, { marginTop: 100}]}>Already have an account? Login</Link>
       <Link href="/" style={styles.link}>Home</Link>
       
     </View>

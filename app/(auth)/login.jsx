@@ -9,12 +9,10 @@ const Login = () => {
   const router = useRouter();
 
   const handleLogin = async () => {
-    // TODO: Replace w/ supabase logic
     if (!email || !password) {
       setError('Please enter email and password');
       return;
     }
-    // Simulate login
     setError('');
     router.replace('/');
   };
@@ -45,7 +43,7 @@ const Login = () => {
       </TouchableOpacity>
       <Link href="/" style={styles.link}>Home</Link>
       
-      <Link href="/signup" style={styles.link}>Don't have an account? Sign up</Link>
+      <Link href="/signup" style={[styles.link, { marginTop: 100}]}>Don't have an account? Sign up</Link>
     </View>
   );
 };
