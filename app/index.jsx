@@ -19,8 +19,11 @@ const Home = () => {
         <Text style={styles.navBrand}>XP List</Text>
         <View style={styles.navButtons}>
           <Link href="/profile" style={styles.navBtn}>Profile</Link>
+          <Link href="/inventory" style={styles.navBtn}>Inventory</Link>
           <Link href="/signup" style={styles.navBtn}>Signup</Link>
           <Link href="/login" style={styles.navBtn}>Login</Link>
+          
+
         </View>
       </View>
 
