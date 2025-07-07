@@ -15,7 +15,7 @@ const styles = StyleSheet.create({
 		jusifyContent: 'center'
 	},
 	title: {
-		fontWeght: 'bold',
+		fontWeight: 'bold',
 		fontSize: 18,
 		marginTop: 10,
 		marginBottom: 30
