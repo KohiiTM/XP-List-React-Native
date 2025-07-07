@@ -4,12 +4,7 @@ import { Link } from 'expo-router';
 import Logo from '../assets/images/icon.png';
 import Parchment from '../assets/images/parchment.png';
 
-// Mock data
-const levelHistory = [
-  { level: 3, date: '2024-06-01' },
-  { level: 2, date: '2024-05-28' },
-  { level: 1, date: '2024-05-20' },
-];
+
 const tasks = [
   { id: '1', text: 'Sample Task 1', difficulty: 'easy', checked: false },
   { id: '2', text: 'Sample Task 2', difficulty: 'medium', checked: true },
@@ -18,6 +13,7 @@ const tasks = [
 const Home = () => {
   return (
     <View style={styles.root}>
+
       {/* Navbar */}
       <View style={styles.navbar}>
         <Text style={styles.navBrand}>XP List</Text>
@@ -45,20 +41,7 @@ const Home = () => {
       </View>
 
       <View style={styles.appWrapper}>
-        {/* Sidebar */}
-        <ScrollView style={styles.sidebar}>
-          <Text style={styles.sidebarTitle}>Level History</Text>
-          {levelHistory.length === 0 ? (
-            <Text style={styles.noLevels}>No completed levels yet</Text>
-          ) : (
-            levelHistory.map((item) => (
-              <View key={item.level} style={styles.levelTab}>
-                <Text style={styles.levelNumber}>Level {item.level}</Text>
-                <Text style={styles.levelDate}>{item.date}</Text>
-              </View>
-            ))
-          )}
-        </ScrollView>
+        
 
         <View style={styles.todoApp}>
           <View style={styles.todoHeader}>
