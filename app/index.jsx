@@ -3,6 +3,11 @@ const Home = () => {
 	return (
 		<View style={styles.container}>
 			<Text style={styles.title}>Welcome to XP List!</Text>
+		
+
+			<View>
+				<Text>card</Text>
+			</View>
 		</View>
 	)
 }
@@ -19,6 +24,12 @@ const styles = StyleSheet.create({
 		fontSize: 18,
 		marginTop: 10,
 		marginBottom: 30
+	}
+	card: {
+		backgroundColo: '#eee',
+		padding: 20,
+		borderRadius: 5,
+		boxShadow: '4px 4px rgba(0,0,0,0.1'
 	}
 })
 
