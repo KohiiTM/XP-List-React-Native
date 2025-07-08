@@ -4,6 +4,7 @@ import { Link, useRouter } from 'expo-router';
 import { Colors } from '../../constants/Colors'
 import ThemedButton from '../../components/ThemedButton'
 import ThemedView from '../../components/ThemedView'
+import { useUser } from '../../hooks/useUser'
 
 
 const Login = () => {
@@ -12,8 +13,13 @@ const Login = () => {
   const [error, setError] = useState('');
   const router = useRouter();
 
+
+  const { user } = useUser()
+
+
   const handleSubmit = () => {
     console.log('login form submitted', email, password)
+    console.log('current user: ', user)
   }
 
   return (
