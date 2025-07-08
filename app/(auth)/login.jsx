@@ -1,6 +1,8 @@
 import React, { useState } from 'react';
-import { StyleSheet, View, Text, TextInput, TouchableOpacity } from 'react-native';
+import { StyleSheet, Pressable, View, Text, TextInput, TouchableOpacity } from 'react-native';
 import { Link, useRouter } from 'expo-router';
+import { Colors } from '../../constants/Colors'
+import ThemedButton from '../../components/ThemedButton'
 
 const Login = () => {
   const [email, setEmail] = useState('');
@@ -8,14 +10,9 @@ const Login = () => {
   const [error, setError] = useState('');
   const router = useRouter();
 
-  const handleLogin = async () => {
-    if (!email || !password) {
-      setError('Please enter email and password');
-      return;
-    }
-    setError('');
-    router.replace('/');
-  };
+  const handleSubmit = () => {
+    console.log('login form submitted')
+  }
 
   return (
     <View style={styles.container}>
@@ -38,9 +35,11 @@ const Login = () => {
         onChangeText={setPassword}
         secureTextEntry
       />
-      <TouchableOpacity style={styles.btn} onPress={handleLogin}>
-        <Text style={styles.btnText}>Login</Text>
-      </TouchableOpacity>
+
+      <ThemedButton onPress={handleSubmit}>
+        <Text style={{ color: Colors.buttonText }}>Login</Text>
+      </ThemedButton>
+      
       <Link href="/" style={styles.link}>Home</Link>
       
       <Link href="/signup" style={[styles.link, { marginTop: 100}]}>Don't have an account? Sign up</Link>
@@ -64,8 +63,8 @@ const styles = StyleSheet.create({
   btn: {
     backgroundColor: '#ffd700', borderRadius: 8, padding: 12, width: '100%', maxWidth: 320, alignItems: 'center', marginBottom: 16,
   },
-  btnText: {
-    color: '#2c2137', fontWeight: 'bold', fontSize: 16,
+  pressed: {
+    opacity: 0.8
   },
   link: {
     color: '#ffd700', marginTop: 8, textDecorationLine: 'underline',
@@ -74,3 +73,28 @@ const styles = StyleSheet.create({
     color: '#d32f2f', marginBottom: 12,
   },
 });
+
+/*
+    background: "#2c2137",
+    card: "#4a3f5c",
+    secondary: "#3a2f4c",
+    border: "#8b7b9e",
+    accent: "#ffd700",
+    text: "#fff",
+    textSecondary: "#8b7b9e",
+    easy: "#8bc34a",
+    medium: "#ff9800",
+    hard: "#d32f2f",
+    error: "#d32f2f",
+    success: "#4caf50",
+    info: "#2196f3",
+    sidebar: "#4a3f5c",
+    spriteBg: "#3a2f4c",
+    xpBar: "#ffd700",
+    xpBarBg: "#3a2f4c",
+    button: "#ffd700",
+    buttonText: "#2c2137",
+    toastBg: "#3a2f4c",
+    toastText: "#fff",
+  },
+  */

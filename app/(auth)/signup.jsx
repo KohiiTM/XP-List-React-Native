@@ -1,6 +1,10 @@
 import React, { useState } from 'react';
 import { StyleSheet, View, Text, TextInput, TouchableOpacity } from 'react-native';
 import { Link, useRouter } from 'expo-router';
+import ThemedButton from '../../components/ThemedButton'
+import { Colors } from '../../constants/Colors'
+
+
 
 const Signup = () => {
   const [username, setUsername] = useState('');
@@ -10,18 +14,9 @@ const Signup = () => {
   const [error, setError] = useState('');
   const router = useRouter();
 
-  const handleSignup = async () => {
-    if (!username || !email || !password || !confirm) {
-      setError('Please fill all fields');
-      return;
-    }
-    if (password !== confirm) {
-      setError('Passwords do not match');
-      return;
-    }
-    setError('');
-    router.replace('/'); // Go home on success
-  };
+  const handleSubmit = async () => {
+    console.log('Sign up pressed')
+  }
 
   return (
     <View style={styles.container}>
@@ -59,9 +54,9 @@ const Signup = () => {
         onChangeText={setConfirm}
         secureTextEntry
       />
-      <TouchableOpacity style={styles.btn} onPress={handleSignup}>
-        <Text style={styles.btnText}>Sign Up</Text>
-      </TouchableOpacity>
+      <ThemedButton onPress={handleSubmit}>
+        <Text style={{ color: Colors.buttonText }}>Signup</Text>
+      </ThemedButton>
 
       
 
