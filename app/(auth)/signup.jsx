@@ -4,7 +4,7 @@ import { Link, useRouter } from 'expo-router';
 import ThemedButton from '../../components/ThemedButton'
 import { Colors } from '../../constants/Colors'
 import ThemedView from '../../components/ThemedView'
-
+import { useUser } from '../../hooks/useUser'
 
 
 
@@ -16,8 +16,14 @@ const Signup = () => {
   const [error, setError] = useState('');
   const router = useRouter();
 
+  const { signup } = useUser()
+
   const handleSubmit = async () => {
-    console.log('Sign up pressed', email, password)
+    try {
+      await signup(email, password)
+    } catch (error){
+      setError(error.message || "Signup failed")
+    }
   }
 
   return (
