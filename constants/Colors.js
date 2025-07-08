@@ -26,6 +26,8 @@ export const Colors = {
     buttonText: "#2c2137",
     toastBg: "#3a2f4c",
     toastText: "#fff",
+    iconColor: "#ffd700",
+    iconColorFocused: "#8b7b9e",
   },
   light: {
     background: "#2c2137",
@@ -49,7 +51,8 @@ export const Colors = {
     buttonText: "#2c2137",
     toastBg: "#3a2f4c",
     toastText: "#fff",
+    iconColor: "#fff",
+    iconColorFocused: "#ffd700",
   },
 }
-
 

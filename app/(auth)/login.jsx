@@ -1,8 +1,10 @@
 import React, { useState } from 'react';
-import { StyleSheet, Pressable, View, Text, TextInput, TouchableOpacity } from 'react-native';
+import { Keyboard, TouchableWithoutFeedback, StyleSheet, View, Text, TextInput, TouchableOpacity } from 'react-native';
 import { Link, useRouter } from 'expo-router';
 import { Colors } from '../../constants/Colors'
 import ThemedButton from '../../components/ThemedButton'
+import ThemedView from '../../components/ThemedView'
+
 
 const Login = () => {
   const [email, setEmail] = useState('');
@@ -11,39 +13,41 @@ const Login = () => {
   const router = useRouter();
 
   const handleSubmit = () => {
-    console.log('login form submitted')
+    console.log('login form submitted', email, password)
   }
 
   return (
-    <View style={styles.container}>
-      <Text style={styles.title}>Login to XP List</Text>
-      {error ? <Text style={styles.error}>{error}</Text> : null}
-      <TextInput
-        style={styles.input}
-        placeholder="Email"
-        placeholderTextColor="#8b7b9e"
-        value={email}
-        onChangeText={setEmail}
-        autoCapitalize="none"
-        keyboardType="email-address"
-      />
-      <TextInput
-        style={styles.input}
-        placeholder="Password"
-        placeholderTextColor="#8b7b9e"
-        value={password}
-        onChangeText={setPassword}
-        secureTextEntry
-      />
+    <TouchableWithoutFeedback onPress={Keyboard.dismiss}>
+      <ThemedView style={styles.container}>
+        <Text style={styles.title}>Login to XP List</Text>
+        {error ? <Text style={styles.error}>{error}</Text> : null}
+        <TextInput
+          style={styles.input}
+          placeholder="Email"
+          placeholderTextColor="#8b7b9e"
+          value={email}
+          onChangeText={setEmail}
+          autoCapitalize="none"
+          keyboardType="email-address"
+        />
+        <TextInput
+          style={styles.input}
+          placeholder="Password"
+          placeholderTextColor="#8b7b9e"
+          value={password}
+          onChangeText={setPassword}
+          secureTextEntry
+        />
 
-      <ThemedButton onPress={handleSubmit}>
-        <Text style={{ color: Colors.buttonText }}>Login</Text>
-      </ThemedButton>
-      
-      <Link href="/" style={styles.link}>Home</Link>
-      
-      <Link href="/signup" style={[styles.link, { marginTop: 100}]}>Don't have an account? Sign up</Link>
-    </View>
+        <ThemedButton onPress={handleSubmit}>
+          <Text style={{ color: Colors.buttonText }}>Login</Text>
+        </ThemedButton>
+        
+        <Link href="/" style={styles.link}>Home</Link>
+        
+        <Link href="/signup" style={[styles.link, { marginTop: 100}]}>Don't have an account? Sign up</Link>
+      </ThemedView>
+    </TouchableWithoutFeedback>
   );
 };
 

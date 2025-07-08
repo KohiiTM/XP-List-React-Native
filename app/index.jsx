@@ -3,7 +3,7 @@ import { StyleSheet, Text, View, Image, TextInput, TouchableOpacity, FlatList, S
 import { Link } from 'expo-router';
 import Logo from '../assets/images/icon.png';
 import Parchment from '../assets/images/parchment.png';
-
+import ThemedView from '../components/ThemedView'
 
 const tasks = [
   { id: '1', text: 'Sample Task 1', difficulty: 'easy', checked: false },
@@ -12,7 +12,7 @@ const tasks = [
 
 const Home = () => {
   return (
-    <View style={styles.root}>
+    <ThemedView style={styles.root} safe={true}>
 
       {/* Navbar */}
       <View style={styles.navbar}>
@@ -86,7 +86,7 @@ const Home = () => {
       <TouchableOpacity style={styles.clearBtn}>
         <Text>Clear All Data</Text>
       </TouchableOpacity>
-    </View>
+    </ThemedView>
   );
 };
 

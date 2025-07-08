@@ -1,8 +1,10 @@
 import React, { useState } from 'react';
-import { StyleSheet, View, Text, TextInput, TouchableOpacity } from 'react-native';
+import { Keyboard, TouchableWithoutFeedback, StyleSheet, View, Text, TextInput, TouchableOpacity } from 'react-native';
 import { Link, useRouter } from 'expo-router';
 import ThemedButton from '../../components/ThemedButton'
 import { Colors } from '../../constants/Colors'
+import ThemedView from '../../components/ThemedView'
+
 
 
 
@@ -15,55 +17,57 @@ const Signup = () => {
   const router = useRouter();
 
   const handleSubmit = async () => {
-    console.log('Sign up pressed')
+    console.log('Sign up pressed', email, password)
   }
 
   return (
-    <View style={styles.container}>
-      <Text style={styles.title}>Sign Up for XP List</Text>
-      {error ? <Text style={styles.error}>{error}</Text> : null}
-      <TextInput
-        style={styles.input}
-        placeholder="Username"
-        placeholderTextColor="#8b7b9e"
-        value={username}
-        onChangeText={setUsername}
-      />
-      <TextInput
-        style={styles.input}
-        placeholder="Email"
-        placeholderTextColor="#8b7b9e"
-        value={email}
-        onChangeText={setEmail}
-        autoCapitalize="none"
-        keyboardType="email-address"
-      />
-      <TextInput
-        style={styles.input}
-        placeholder="Password"
-        placeholderTextColor="#8b7b9e"
-        value={password}
-        onChangeText={setPassword}
-        secureTextEntry
-      />
-      <TextInput
-        style={styles.input}
-        placeholder="Confirm Password"
-        placeholderTextColor="#8b7b9e"
-        value={confirm}
-        onChangeText={setConfirm}
-        secureTextEntry
-      />
-      <ThemedButton onPress={handleSubmit}>
-        <Text style={{ color: Colors.buttonText }}>Signup</Text>
-      </ThemedButton>
+    <TouchableWithoutFeedback onPress={Keyboard.dismiss}>
+      <ThemedView style={styles.container}>
+        <Text style={styles.title}>Sign Up for XP List</Text>
+        {error ? <Text style={styles.error}>{error}</Text> : null}
+        <TextInput
+          style={styles.input}
+          placeholder="Username"
+          placeholderTextColor="#8b7b9e"
+          value={username}
+          onChangeText={setUsername}
+        />
+        <TextInput
+          style={styles.input}
+          placeholder="Email"
+          placeholderTextColor="#8b7b9e"
+          value={email}
+          onChangeText={setEmail}
+          autoCapitalize="none"
+          keyboardType="email-address"
+        />
+        <TextInput
+          style={styles.input}
+          placeholder="Password"
+          placeholderTextColor="#8b7b9e"
+          value={password}
+          onChangeText={setPassword}
+          secureTextEntry
+        />
+        <TextInput
+          style={styles.input}
+          placeholder="Confirm Password"
+          placeholderTextColor="#8b7b9e"
+          value={confirm}
+          onChangeText={setConfirm}
+          secureTextEntry
+        />
+        <ThemedButton onPress={handleSubmit}>
+          <Text style={{ color: Colors.buttonText }}>Signup</Text>
+        </ThemedButton>
 
-      
+        
 
-      <Link href="/login" style={[styles.link, { marginTop: 100}]}>Already have an account? Login</Link>
-      <Link href="/" style={styles.link}>Home</Link>
-      
-    </View>
+        <Link href="/login" style={[styles.link, { marginTop: 100}]}>Already have an account? Login</Link>
+        <Link href="/" style={styles.link}>Home</Link>
+        
+      </ThemedView>
+    </TouchableWithoutFeedback>
   );
 };
 
