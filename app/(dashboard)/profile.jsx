@@ -2,6 +2,7 @@ import React from 'react'
 import { StyleSheet, View, Text, Image, TouchableOpacity } from 'react-native'
 import { useRouter } from 'expo-router'
 import { useUser } from '../../hooks/useUser'
+import {Colors} from '../../constants/Colors'
 
 
 import ProfileIcon from '../../assets/images/icon.png'
@@ -10,6 +11,13 @@ import ThemedButton from '../../components/ThemedButton'
 const Profile = () => {
   const { logout, user } = useUser()
 
+  const dummyUser = {
+    username: 'User123',
+    email: 'user@example.com',
+    level: 5,
+    xp: 320,
+    sprite: ProfileIcon,
+  };
   
   const router = useRouter();
 
@@ -20,12 +28,17 @@ const Profile = () => {
 
   return (
     <View style={styles.container}>
-      <Image source={user.sprite} style={styles.avatar} />
-      <Text style={styles.username}>{user.username}</Text>
-      <Text style={styles.email}>{user.email}</Text>
+      <Text style={Colors.text}>
+      
+      </Text>
+
+
+      <Image source={dummyUser.sprite} style={styles.avatar} />
+      <Text style={styles.username}>{user.email}</Text>
+      {/* <Text style={styles.email}>{dummyUser.email}</Text> */}
       <View style={styles.levelBox}>
-        <Text style={styles.level}>Level: {user.level}</Text>
-        <Text style={styles.xp}>XP: {user.xp}</Text>
+        <Text style={styles.level}>Level: {dummyUser.level}</Text>
+        <Text style={styles.xp}>XP: {dummyUser.xp}</Text>
       </View>
 
       <ThemedButton style={styles.btn} onPress={logout}>
