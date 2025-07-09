@@ -18,6 +18,8 @@ const Login = () => {
 
 
   const handleSubmit = async () => {
+    setError(null)
+    
     try {
       await login(email, password)
     } catch (error) {
