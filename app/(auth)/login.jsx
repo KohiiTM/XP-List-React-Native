@@ -2,9 +2,13 @@ import React, { useState } from 'react';
 import { Keyboard, TouchableWithoutFeedback, StyleSheet, View, Text, TextInput, TouchableOpacity } from 'react-native';
 import { Link, useRouter } from 'expo-router';
 import { Colors } from '../../constants/Colors'
+import { useUser } from '../../hooks/useUser'
+
+
+
 import ThemedButton from '../../components/ThemedButton'
 import ThemedView from '../../components/ThemedView'
-import { useUser } from '../../hooks/useUser'
+import Spacer from '../../components/Spacer'
 
 
 const Login = () => {
@@ -19,11 +23,11 @@ const Login = () => {
 
   const handleSubmit = async () => {
     setError(null)
-    
+
     try {
       await login(email, password)
     } catch (error) {
-
+      setError(error?.message || String(error) || "Unknown error");
     }
   }
 
@@ -31,7 +35,6 @@ const Login = () => {
     <TouchableWithoutFeedback onPress={Keyboard.dismiss}>
       <ThemedView style={styles.container}>
         <Text style={styles.title}>Login to XP List</Text>
-        {error ? <Text style={styles.error}>{error}</Text> : null}
         <TextInput
           style={styles.input}
           placeholder="Email"
@@ -53,6 +56,10 @@ const Login = () => {
         <ThemedButton onPress={handleSubmit}>
           <Text style={{ color: Colors.buttonText }}>Login</Text>
         </ThemedButton>
+
+        <Spacer />
+        {error && <Text style={styles.error}>{error}</Text>}
+
         
         <Link href="/" style={styles.link}>Home</Link>
         
@@ -85,7 +92,13 @@ const styles = StyleSheet.create({
     color: '#ffd700', marginTop: 8, textDecorationLine: 'underline',
   },
   error: {
-    color: '#d32f2f', marginBottom: 12,
+    color: '#d32f2f',
+    marginBottom: 12,
+    padding: 10,
+    borderWidth: 1,
+    borderRadius: 15,
+    marginHorizontal: 10,
+    backgroundColor: '#f5c1c8'
   },
 });
 

@@ -1,17 +1,16 @@
-import React from 'react';
-import { StyleSheet, View, Text, Image, TouchableOpacity } from 'react-native';
-import { useRouter } from 'expo-router';
-import ProfileIcon from '../../assets/images/icon.png';
+import React from 'react'
+import { StyleSheet, View, Text, Image, TouchableOpacity } from 'react-native'
+import { useRouter } from 'expo-router'
+import { useUser } from '../../hooks/useUser'
+
+
+import ProfileIcon from '../../assets/images/icon.png'
+import ThemedButton from '../../components/ThemedButton'
 
 const Profile = () => {
-  // TODO: Replace w/ user data from state/store
-  const user = {
-    username: 'User123',
-    email: 'user@example.com',
-    level: 5,
-    xp: 320,
-    sprite: ProfileIcon,
-  };
+  const { logout, user } = useUser()
+
+  
   const router = useRouter();
 
   const handleLogout = () => {
@@ -28,9 +27,11 @@ const Profile = () => {
         <Text style={styles.level}>Level: {user.level}</Text>
         <Text style={styles.xp}>XP: {user.xp}</Text>
       </View>
-      <TouchableOpacity style={styles.btn} onPress={handleLogout}>
+
+      <ThemedButton style={styles.btn} onPress={logout}>
         <Text style={styles.btnText}>Logout</Text>
-      </TouchableOpacity>
+      </ThemedButton>
+      
     </View>
   );
 };

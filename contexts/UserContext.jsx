@@ -14,8 +14,13 @@ export function UserProvider({ children }) {
 			const response = await account.get()
 			setUser(response)
 		}   catch (error) {
-			console.log(error.message)
+			throw error
 		}
+	}
+
+	async function logout() {
+		await account.deleteSession("current")
+		setUser(null)
 	}
 
 	async function signup(email, password) {

@@ -1,28 +1,31 @@
 import React, { useState } from 'react';
 import { Keyboard, TouchableWithoutFeedback, StyleSheet, View, Text, TextInput, TouchableOpacity } from 'react-native';
 import { Link, useRouter } from 'expo-router';
-import ThemedButton from '../../components/ThemedButton'
 import { Colors } from '../../constants/Colors'
-import ThemedView from '../../components/ThemedView'
 import { useUser } from '../../hooks/useUser'
 
 
+import ThemedButton from '../../components/ThemedButton'
+import ThemedView from '../../components/ThemedView'
+import Spacer from '../../components/Spacer'
 
 const Signup = () => {
   const [username, setUsername] = useState('');
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [confirm, setConfirm] = useState('');
-  const [error, setError] = useState('');
+  const [error, setError] = useState(null);
   const router = useRouter();
 
   const { signup } = useUser()
 
   const handleSubmit = async () => {
+    setError(null)
+
     try {
       await signup(email, password)
     } catch (error){
-      setError(error.message || "Signup failed")
+      setError(error?.message || String(error) || "Unknown error");
     }
   }
 
@@ -30,7 +33,6 @@ const Signup = () => {
     <TouchableWithoutFeedback onPress={Keyboard.dismiss}>
       <ThemedView style={styles.container}>
         <Text style={styles.title}>Sign Up for XP List</Text>
-        {error ? <Text style={styles.error}>{error}</Text> : null}
         <TextInput
           style={styles.input}
           placeholder="Username"
@@ -67,6 +69,9 @@ const Signup = () => {
           <Text style={{ color: Colors.buttonText }}>Signup</Text>
         </ThemedButton>
 
+        <Spacer />
+        {error && <Text style={styles.error}>{error}</Text>}
+
         
 
         <Link href="/login" style={[styles.link, { marginTop: 100}]}>Already have an account? Login</Link>
@@ -100,6 +105,12 @@ const styles = StyleSheet.create({
     color: '#ffd700', marginTop: 8, textDecorationLine: 'underline',
   },
   error: {
-    color: '#d32f2f', marginBottom: 12,
+    color: '#d32f2f',
+    marginBottom: 12,
+    padding: 10,
+    borderWidth: 1,
+    borderRadius: 15,
+    marginHorizontal: 10,
+    backgroundColor: '#f5c1c8'
   },
 });

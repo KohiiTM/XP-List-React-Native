@@ -9,7 +9,6 @@ const RootLayout = () => {
 	const theme = Colors[colorScheme] ?? Colors.light
 
 
-
 	return (
 	  <UserProvider>
 	  	<StatusBar style="light" />
@@ -19,10 +18,8 @@ const RootLayout = () => {
 		}}>
 
 			<Stack.Screen name="index" options={{ title: 'Home' }}/>
-			<Stack.Screen name="(auth)/signup" options={{ title: 'Signup' }}/>
-			<Stack.Screen name="(auth)/login" options={{ title: 'Login' }}/>
 			<Stack.Screen name="(dashboard)" options={{ headerShown: false }} />
-
+			<Stack.Screen name="(auth)" options={{ headerShown: false }} />
 
 		</Stack>
 	  </UserProvider>
