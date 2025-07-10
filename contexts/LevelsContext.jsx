@@ -1,4 +1,8 @@
 import { createContext, useState, useEffect } from "react";
+import { env } from 'expo-env';
+
+const DATABASE_ID = env.DATABASE_ID;
+const COLLECTION_ID = env.COLLECTION_ID;
 
 export const LevelsContext = createContext();
 

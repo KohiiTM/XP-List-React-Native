@@ -40,4 +40,3 @@ lib/
 appwrite.js
 database-schema.md
 .env
-app.json
