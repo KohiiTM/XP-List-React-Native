@@ -36,4 +36,6 @@ yarn-error.*
 # typescript
 *.tsbuildinfo
 
+lib/
 appwrite.js
+database-schema.md

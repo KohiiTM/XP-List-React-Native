@@ -1,37 +1,33 @@
-import React from 'react'
-import { StyleSheet, View, Text, Image, TouchableOpacity } from 'react-native'
-import { useRouter } from 'expo-router'
-import { useUser } from '../../hooks/useUser'
-import {Colors} from '../../constants/Colors'
+import React from "react";
+import { StyleSheet, View, Text, Image, TouchableOpacity } from "react-native";
+import { useRouter } from "expo-router";
+import { useUser } from "../../hooks/useUser";
+import { Colors } from "../../constants/Colors";
 
-
-import ProfileIcon from '../../assets/images/icon.png'
-import ThemedButton from '../../components/ThemedButton'
+import ProfileIcon from "../../assets/images/icon.png";
+import ThemedButton from "../../components/ThemedButton";
 
 const Profile = () => {
-  const { logout, user } = useUser()
+  const { logout, user } = useUser();
 
   const dummyUser = {
-    username: 'User123',
-    email: 'user@example.com',
+    username: "User123",
+    email: "user@example.com",
     level: 5,
     xp: 320,
     sprite: ProfileIcon,
   };
-  
+
   const router = useRouter();
 
   const handleLogout = () => {
     // TODO: supabase logic
-    router.replace('/login');
+    router.replace("/login");
   };
 
   return (
     <View style={styles.container}>
-      <Text style={Colors.text}>
-      
-      </Text>
-
+      <Text style={Colors.text}></Text>
 
       <Image source={dummyUser.sprite} style={styles.avatar} />
       <Text style={styles.username}>{user.email}</Text>
@@ -44,7 +40,6 @@ const Profile = () => {
       <ThemedButton style={styles.btn} onPress={logout}>
         <Text style={styles.btnText}>Logout</Text>
       </ThemedButton>
-      
     </View>
   );
 };
@@ -53,30 +48,55 @@ export default Profile;
 
 const styles = StyleSheet.create({
   container: {
-    flex: 1, alignItems: 'center', justifyContent: 'center', backgroundColor: '#2c2137', padding: 24,
+    flex: 1,
+    alignItems: "center",
+    justifyContent: "center",
+    backgroundColor: "#2c2137",
+    padding: 24,
   },
   avatar: {
-    width: 80, height: 80, borderRadius: 40, marginBottom: 16,
+    width: 80,
+    height: 80,
+    borderRadius: 40,
+    marginBottom: 16,
   },
   username: {
-    color: '#ffd700', fontSize: 22, fontWeight: 'bold', marginBottom: 4,
+    color: "#ffd700",
+    fontSize: 22,
+    fontWeight: "bold",
+    marginBottom: 4,
   },
   email: {
-    color: '#fff', fontSize: 16, marginBottom: 16,
+    color: "#fff",
+    fontSize: 16,
+    marginBottom: 16,
   },
   levelBox: {
-    backgroundColor: '#4a3f5c', borderRadius: 12, padding: 16, marginBottom: 24, alignItems: 'center',
+    backgroundColor: "#4a3f5c",
+    borderRadius: 12,
+    padding: 16,
+    marginBottom: 24,
+    alignItems: "center",
   },
   level: {
-    color: '#ffd700', fontWeight: 'bold', fontSize: 18,
+    color: "#ffd700",
+    fontWeight: "bold",
+    fontSize: 18,
   },
   xp: {
-    color: '#fff', fontSize: 16,
+    color: "#fff",
+    fontSize: 16,
   },
   btn: {
-    backgroundColor: '#d32f2f', borderRadius: 8, padding: 12, width: 160, alignItems: 'center',
+    backgroundColor: "#d32f2f",
+    borderRadius: 8,
+    padding: 12,
+    width: 160,
+    alignItems: "center",
   },
   btnText: {
-    color: '#fff', fontWeight: 'bold', fontSize: 16,
+    color: "#fff",
+    fontWeight: "bold",
+    fontSize: 16,
   },
 });

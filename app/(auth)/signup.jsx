@@ -23,7 +23,7 @@ const Signup = () => {
     setError(null)
 
     try {
-      await signup(email, password)
+      await signup(email, password, username)
     } catch (error){
       setError(error?.message || String(error) || "Unknown error");
     }
