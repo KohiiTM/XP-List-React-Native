@@ -1,9 +1,9 @@
 import React, { useState } from 'react';
-import { Keyboard, TouchableWithoutFeedback, StyleSheet, View, Text, TextInput, TouchableOpacity } from 'react-native';
+import { Keyboard, TouchableWithoutFeedback, StyleSheet, View, Text, TextInput, TouchableOpacity,
+ ActivityIndicator } from 'react-native';
 import { Link, useRouter } from 'expo-router';
 import { Colors } from '../../constants/Colors'
 import { useUser } from '../../hooks/useUser'
-
 
 
 import ThemedButton from '../../components/ThemedButton'
@@ -64,6 +64,8 @@ const Login = () => {
         <Link href="/" style={styles.link}>Home</Link>
         
         <Link href="/signup" style={[styles.link, { marginTop: 100}]}>Don't have an account? Sign up</Link>
+        
+        
       </ThemedView>
     </TouchableWithoutFeedback>
   );
