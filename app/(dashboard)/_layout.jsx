@@ -49,7 +49,7 @@ const DashboardLayout = () => {
 				 options={{ title: "Tasks", tabBarIcon: ({ focused }) => (
 				 	<Ionicons 
 				 		size={24}
-				 		name={focused ? 'bag' : 'bag-outline'}
+				 		name={focused ? 'diamond' : 'diamond-outline'}
 						color={focused ? theme.iconColorFocused : theme.iconColor}
 
 				 	/>
