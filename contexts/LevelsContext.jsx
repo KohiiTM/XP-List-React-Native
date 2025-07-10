@@ -1,6 +1,9 @@
 import { createContext, useState, useEffect } from "react";
 import Constants from "expo-constants";
 import { databases } from "../lib/appwrite";
+import { useUser } from "../hooks/useUser";
+import { ID, Permission } from "react-native-appwrite";
+import { Role } from "appwrite";
 
 const DATABASE_ID = Constants.expoConfig.extra.DATABASE_ID;
 const COLLECTION_ID = Constants.expoConfig.extra.COLLECTION_ID;
@@ -17,17 +20,19 @@ export function LevelsProvider({ children }) {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
 
-  async function fetchLevelInfo(userId) {
+  const { user } = useUser();
+
+  async function fetchLevelInfo() {
     setLoading(true);
     setError(null);
     try {
       let response;
       try {
-        // get document
+        // get document by user ID
         response = await databases.getDocument(
           DATABASE_ID,
           COLLECTION_ID,
-          userId
+          user.$id
         );
       } catch (err) {
         // else create new document
@@ -35,13 +40,19 @@ export function LevelsProvider({ children }) {
           response = await databases.createDocument(
             DATABASE_ID,
             COLLECTION_ID,
-            userId,
+            user.$id,
             {
+              userId: user.$id,
               level: 1,
               totalXP: 0,
               currentLevelXP: 0,
               xpToNextLevel: 100,
-            }
+            },
+            [
+              Permission.read(Role.user(user.$id)),
+              Permission.update(Role.user(user.$id)),
+              Permission.delete(Role.user(user.$id)),
+            ]
           );
         } else {
           throw err;
