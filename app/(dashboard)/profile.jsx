@@ -1,27 +1,26 @@
-import React from "react";
+import React, { useContext, useEffect } from "react";
 import { StyleSheet, View, Text, Image, TouchableOpacity } from "react-native";
 import { useRouter } from "expo-router";
 import { useUser } from "../../hooks/useUser";
 import { Colors } from "../../constants/Colors";
+import { LevelsContext } from "../../contexts/LevelsContext";
 
 import ProfileIcon from "../../assets/images/icon.png";
 import ThemedButton from "../../components/ThemedButton";
 
 const Profile = () => {
   const { logout, user } = useUser();
-
-  const dummyUser = {
-    username: "User123",
-    email: "user@example.com",
-    level: 5,
-    xp: 320,
-    sprite: ProfileIcon,
-  };
-
+  const { levelInfo, fetchLevelInfo, loading, error } =
+    useContext(LevelsContext);
   const router = useRouter();
 
+  useEffect(() => {
+    if (user?.$id) {
+      fetchLevelInfo(user.$id);
+    }
+  }, [user]);
+
   const handleLogout = () => {
-    // TODO: supabase logic
     router.replace("/login");
   };
 
@@ -29,12 +28,18 @@ const Profile = () => {
     <View style={styles.container}>
       <Text style={Colors.text}></Text>
 
-      <Image source={dummyUser.sprite} style={styles.avatar} />
-      <Text style={styles.username}>{user.email}</Text>
-      {/* <Text style={styles.email}>{dummyUser.email}</Text> */}
+      <Image source={ProfileIcon} style={styles.avatar} />
+      <Text style={styles.username}>{user?.email}</Text>
       <View style={styles.levelBox}>
-        <Text style={styles.level}>Level: {dummyUser.level}</Text>
-        <Text style={styles.xp}>XP: {dummyUser.xp}</Text>
+        <Text style={styles.level}>Level: {levelInfo.level}</Text>
+        <Text style={styles.xp}>
+          XP: {levelInfo.currentLevelXP} / {levelInfo.xpToNextLevel}
+        </Text>
+        <Text style={styles.xp}>Total XP: {levelInfo.totalXP}</Text>
+        {loading && <Text style={styles.xp}>Loading...</Text>}
+        {error && (
+          <Text style={[styles.xp, { color: "#d32f2f" }]}>{error}</Text>
+        )}
       </View>
 
       <ThemedButton style={styles.btn} onPress={logout}>
