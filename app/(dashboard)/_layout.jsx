@@ -44,6 +44,28 @@ const DashboardLayout = () => {
 				 	/>
 				 	)}}
 				/>
+				<Tabs.Screen
+				 name="tasks" 
+				 options={{ title: "Tasks", tabBarIcon: ({ focused }) => (
+				 	<Ionicons 
+				 		size={24}
+				 		name={focused ? 'bag' : 'bag-outline'}
+						color={focused ? theme.iconColorFocused : theme.iconColor}
+
+				 	/>
+				 	)}}
+				/>
+				<Tabs.Screen
+				 name="history" 
+				 options={{ title: "History", tabBarIcon: ({ focused }) => (
+				 	<Ionicons 
+				 		size={24}
+				 		name={focused ? 'bag' : 'bag-outline'}
+						color={focused ? theme.iconColorFocused : theme.iconColor}
+
+				 	/>
+				 	)}}
+				/>
 			</Tabs>	
 		</UserOnly>
 	)
