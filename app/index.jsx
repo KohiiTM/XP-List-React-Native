@@ -1,29 +1,43 @@
-import React from 'react';
-import { StyleSheet, Text, View, Image, TextInput, TouchableOpacity, FlatList, ScrollView } from 'react-native';
-import { Link } from 'expo-router';
-import Logo from '../assets/images/icon.png';
-import Parchment from '../assets/images/parchment.png';
-import ThemedView from '../components/ThemedView'
+import React from "react";
+import {
+  StyleSheet,
+  Text,
+  View,
+  Image,
+  TextInput,
+  TouchableOpacity,
+  FlatList,
+  ScrollView,
+} from "react-native";
+import { Link } from "expo-router";
+import Logo from "../assets/images/icon.png";
+import Parchment from "../assets/images/parchment.png";
+import ThemedView from "../components/ThemedView";
 
 const tasks = [
-  { id: '1', text: 'Sample Task 1', difficulty: 'easy', checked: false },
-  { id: '2', text: 'Sample Task 2', difficulty: 'medium', checked: true },
+  { id: "1", text: "Sample Task 1", difficulty: "easy", checked: false },
+  { id: "2", text: "Sample Task 2", difficulty: "medium", checked: true },
 ];
 
 const Home = () => {
   return (
     <ThemedView style={styles.root} safe={true}>
-
       {/* Navbar */}
       <View style={styles.navbar}>
         <Text style={styles.navBrand}>XP List</Text>
         <View style={styles.navButtons}>
-          <Link href="/profile" style={styles.navBtn}>Profile</Link>
-          <Link href="/inventory" style={styles.navBtn}>Inventory</Link>
-          <Link href="/signup" style={styles.navBtn}>Signup</Link>
-          <Link href="/login" style={styles.navBtn}>Login</Link>
-          
-
+          <Link href="/profile" style={styles.navBtn}>
+            Profile
+          </Link>
+          <Link href="/inventory" style={styles.navBtn}>
+            Inventory
+          </Link>
+          <Link href="/signup" style={styles.navBtn}>
+            Signup
+          </Link>
+          <Link href="/login" style={styles.navBtn}>
+            Login
+          </Link>
         </View>
       </View>
 
@@ -32,7 +46,7 @@ const Home = () => {
           <View style={styles.playerSprite} />
         </View>
         <TouchableOpacity style={styles.spriteBtn}>
-          <Text style={{ fontWeight: 'bold' }}>{'>'}</Text>
+          <Text style={{ fontWeight: "bold" }}>{">"}</Text>
         </TouchableOpacity>
         <View style={styles.leveling}>
           <Text style={styles.levelText}>Level: 1</Text>
@@ -44,8 +58,6 @@ const Home = () => {
       </View>
 
       <View style={styles.appWrapper}>
-        
-
         <View style={styles.todoApp}>
           <View style={styles.todoHeader}>
             <Text style={styles.todoTitle}>To-Do</Text>
@@ -69,10 +81,16 @@ const Home = () => {
           </View>
           <FlatList
             data={tasks}
-            keyExtractor={item => item.id}
+            keyExtractor={(item) => item.id}
             renderItem={({ item }) => (
-              <View style={[styles.taskItem, item.checked && styles.checkedTask]}>
-                <Text style={styles[`difficulty${capitalize(item.difficulty)}`]}>{item.difficulty}</Text>
+              <View
+                style={[styles.taskItem, item.checked && styles.checkedTask]}
+              >
+                <Text
+                  style={styles[`difficulty${capitalize(item.difficulty)}`]}
+                >
+                  {item.difficulty}
+                </Text>
                 <Text style={styles.taskText}>{item.text}</Text>
                 <TouchableOpacity>
                   <Text style={styles.deleteBtn}>×</Text>
@@ -99,141 +117,141 @@ export default Home;
 const styles = StyleSheet.create({
   root: {
     flex: 1,
-    backgroundColor: '#2c2137',
+    backgroundColor: "#2c2137",
     paddingTop: 40,
   },
   navbar: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
+    flexDirection: "row",
+    justifyContent: "space-between",
+    alignItems: "center",
     paddingHorizontal: 12,
     minHeight: 36,
-    backgroundColor: 'transparent',
+    backgroundColor: "transparent",
   },
   navBrand: {
-    color: '#ffd700',
+    color: "#ffd700",
     fontSize: 18,
-    fontWeight: 'bold',
+    fontWeight: "bold",
   },
   navButtons: {
-    flexDirection: 'row',
+    flexDirection: "row",
     gap: 8,
   },
   navBtn: {
-    color: '#fff',
+    color: "#fff",
     marginLeft: 10,
     fontSize: 15,
     padding: 4,
     borderBottomWidth: 1,
-    borderBottomColor: '#ffd700',
+    borderBottomColor: "#ffd700",
   },
   spriteBar: {
-    flexDirection: 'row',
-    alignItems: 'center',
+    flexDirection: "row",
+    alignItems: "center",
     margin: 16,
     gap: 12,
   },
   spriteVisual: {
     width: 64,
     height: 64,
-    backgroundColor: '#3a2f4c',
+    backgroundColor: "#3a2f4c",
     borderRadius: 8,
-    justifyContent: 'center',
-    alignItems: 'center',
+    justifyContent: "center",
+    alignItems: "center",
   },
   playerSprite: {
     width: 48,
     height: 48,
-    backgroundColor: '#ffd700',
+    backgroundColor: "#ffd700",
     borderRadius: 8,
   },
   spriteBtn: {
-    backgroundColor: '#eee',
+    backgroundColor: "#eee",
     borderRadius: 999,
     padding: 8,
     marginHorizontal: 8,
   },
   leveling: {
     marginLeft: 12,
-    alignItems: 'flex-start',
+    alignItems: "flex-start",
   },
   levelText: {
-    color: '#ffd700',
-    fontWeight: 'bold',
+    color: "#ffd700",
+    fontWeight: "bold",
     fontSize: 16,
   },
   xpBar: {
     width: 100,
     height: 8,
-    backgroundColor: '#3a2f4c',
+    backgroundColor: "#3a2f4c",
     borderRadius: 4,
     marginVertical: 4,
-    overflow: 'hidden',
+    overflow: "hidden",
   },
   xpProgress: {
-    width: '30%',
+    width: "30%",
     height: 8,
-    backgroundColor: '#ffd700',
+    backgroundColor: "#ffd700",
     borderRadius: 4,
   },
   xpText: {
-    color: '#fff',
+    color: "#fff",
     fontSize: 12,
   },
   appWrapper: {
     flex: 1,
-    flexDirection: 'row',
+    flexDirection: "row",
     marginHorizontal: 8,
     marginTop: 8,
   },
   sidebar: {
     width: 40,
-    backgroundColor: '#4a3f5c',
+    backgroundColor: "#4a3f5c",
     borderRadius: 12,
     padding: 8,
     marginRight: 8,
   },
   sidebarTitle: {
-    color: '#ffd700',
-    fontWeight: 'bold',
+    color: "#ffd700",
+    fontWeight: "bold",
     marginBottom: 8,
     fontSize: 14,
   },
   noLevels: {
-    color: '#fff',
-    fontStyle: 'italic',
+    color: "#fff",
+    fontStyle: "italic",
     marginTop: 16,
   },
   levelTab: {
-    backgroundColor: '#3a2f4c',
+    backgroundColor: "#3a2f4c",
     borderRadius: 8,
     padding: 8,
     marginBottom: 8,
-    alignItems: 'center',
+    alignItems: "center",
   },
   levelNumber: {
-    color: '#ffd700',
-    fontWeight: 'bold',
+    color: "#ffd700",
+    fontWeight: "bold",
   },
   levelDate: {
-    color: '#fff',
+    color: "#fff",
     fontSize: 10,
   },
   todoApp: {
     flex: 1,
-    backgroundColor: '#4a3f5c',
+    backgroundColor: "#4a3f5c",
     borderRadius: 16,
     padding: 16,
   },
   todoHeader: {
-    flexDirection: 'row',
-    alignItems: 'center',
+    flexDirection: "row",
+    alignItems: "center",
     marginBottom: 16,
   },
   todoTitle: {
-    color: '#ffd700',
+    color: "#ffd700",
     fontSize: 20,
-    fontWeight: 'bold',
+    fontWeight: "bold",
     marginRight: 8,
   },
   todoIcon: {
@@ -241,40 +259,40 @@ const styles = StyleSheet.create({
     height: 30,
   },
   inputRow: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    backgroundColor: '#3a2f4c',
+    flexDirection: "row",
+    alignItems: "center",
+    backgroundColor: "#3a2f4c",
     borderRadius: 12,
     padding: 8,
     marginBottom: 16,
   },
   input: {
     flex: 1,
-    color: '#fff',
+    color: "#fff",
     fontSize: 14,
     padding: 8,
-    backgroundColor: 'transparent',
+    backgroundColor: "transparent",
   },
   difficultySelect: {
-    flexDirection: 'row',
+    flexDirection: "row",
     gap: 4,
     marginHorizontal: 8,
   },
   difficultyOption: {
-    color: '#ffd700',
+    color: "#ffd700",
     marginHorizontal: 2,
     fontSize: 12,
   },
   addBtn: {
-    backgroundColor: '#ffd700',
+    backgroundColor: "#ffd700",
     padding: 8,
     borderRadius: 8,
     marginLeft: 4,
   },
   taskItem: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    backgroundColor: '#3a2f4c',
+    flexDirection: "row",
+    alignItems: "center",
+    backgroundColor: "#3a2f4c",
     borderRadius: 8,
     padding: 8,
     marginBottom: 8,
@@ -283,35 +301,35 @@ const styles = StyleSheet.create({
     opacity: 0.7,
   },
   taskText: {
-    color: '#fff',
+    color: "#fff",
     flex: 1,
     marginLeft: 8,
   },
   deleteBtn: {
-    color: '#d32f2f',
+    color: "#d32f2f",
     fontSize: 18,
     marginLeft: 8,
   },
   difficultyEasy: {
-    color: '#8bc34a',
-    fontWeight: 'bold',
+    color: "#8bc34a",
+    fontWeight: "bold",
     marginRight: 4,
   },
   difficultyMedium: {
-    color: '#ff9800',
-    fontWeight: 'bold',
+    color: "#ff9800",
+    fontWeight: "bold",
     marginRight: 4,
   },
   difficultyHard: {
-    color: '#d32f2f',
-    fontWeight: 'bold',
+    color: "#d32f2f",
+    fontWeight: "bold",
     marginRight: 4,
   },
   clearBtn: {
-    backgroundColor: '#d32f2f',
+    backgroundColor: "#d32f2f",
     padding: 12,
     borderRadius: 999,
-    alignItems: 'center',
+    alignItems: "center",
     margin: 16,
   },
 });

@@ -1,22 +1,19 @@
 import { StyleSheet, Text, View } from "react-native";
 import { Link } from "expo-router";
 
-const TasksOverview = () => {
+const Tasks = () => {
   return (
     <View style={styles.container}>
-      <Text style={styles.title}>Tasks Overview</Text>
-      <Text style={styles.subtitle}>
-        Welcome to your Tasks Dashboard! Here you can get a quick summary of
-        your tasks and navigate to manage them in detail.
-      </Text>
-      <Link href="/@tasks" style={styles.link}>
-        Go to Task Manager
+      <Text style={styles.title}>Tasks Page</Text>
+      <Text style={styles.subtitle}>Your tasks will appear here.</Text>
+      <Link href="/" style={styles.link}>
+        Home
       </Link>
     </View>
   );
 };
 
-export default TasksOverview;
+export default Tasks;
 
 const styles = StyleSheet.create({
   container: {
@@ -37,7 +34,6 @@ const styles = StyleSheet.create({
     color: "#fff",
     fontSize: 16,
     marginBottom: 30,
-    textAlign: "center",
   },
   link: {
     marginVertical: 10,
