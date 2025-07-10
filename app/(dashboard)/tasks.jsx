@@ -1,4 +1,4 @@
-import React, { useEffect, useState, useCallback } from "react";
+import React, { useEffect } from "react";
 import {
   StyleSheet,
   Text,
@@ -10,73 +10,22 @@ import {
 } from "react-native";
 import { Link } from "expo-router";
 import { Colors } from "../../constants/Colors";
-import { databases } from "../../lib/appwrite";
-import { useUser } from "../../hooks/useUser";
-import { Query } from "react-native-appwrite";
-import Constants from "expo-constants";
-
-const DATABASE_ID = Constants.expoConfig.extra.DATABASE_ID;
-const TASKS_COLLECTION_ID = Constants.expoConfig.extra.TASKS_COLLECTION_ID;
+import { useTasks } from "../../hooks/useTasks";
 
 const Tasks = () => {
-  const { user } = useUser();
-  const [tasks, setTasks] = useState([]);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState(null);
-
-  const fetchTasks = useCallback(async () => {
-    setLoading(true);
-    setError(null);
-    try {
-      const res = await databases.listDocuments(
-        DATABASE_ID,
-        TASKS_COLLECTION_ID,
-        user ? [Query.equal("userId", user.$id)] : []
-      );
-      if (res.documents.length === 0 && user) {
-        // Create a default task for the user
-        await databases.createDocument(
-          DATABASE_ID,
-          TASKS_COLLECTION_ID,
-          undefined, // Let Appwrite generate the ID
-          {
-            userId: user.$id,
-            title: "Welcome Task",
-            description: "This is your first task!",
-            difficulty: "easy",
-            xpReward: 10,
-            completed: false,
-            completedAt: null,
-          }
-        );
-        // Refetch after creating
-        return fetchTasks();
-      }
-      setTasks(res.documents);
-    } catch (err) {
-      console.error("Failed to load tasks:", err);
-      setError(err?.message || String(err) || "Failed to load tasks");
-    } finally {
-      setLoading(false);
-    }
-  }, [user]);
+  const { tasks, loading, error, fetchTasks, updateTask, deleteTask } =
+    useTasks();
 
   useEffect(() => {
-    if (user) fetchTasks();
-  }, [fetchTasks, user]);
+    fetchTasks();
+  }, [fetchTasks]);
 
   const handleComplete = async (task) => {
     try {
-      await databases.updateDocument(
-        DATABASE_ID,
-        TASKS_COLLECTION_ID,
-        task.$id,
-        {
-          completed: !task.completed,
-          completedAt: !task.completed ? new Date().toISOString() : null,
-        }
-      );
-      fetchTasks();
+      await updateTask(task.$id, {
+        completed: !task.completed,
+        completedAt: !task.completed ? new Date().toISOString() : null,
+      });
     } catch (err) {
       Alert.alert("Error", "Could not update task");
     }
@@ -84,8 +33,7 @@ const Tasks = () => {
 
   const handleDelete = async (taskId) => {
     try {
-      await databases.deleteDocument(DATABASE_ID, TASKS_COLLECTION_ID, taskId);
-      fetchTasks();
+      await deleteTask(taskId);
     } catch (err) {
       Alert.alert("Error", "Could not delete task");
     }
