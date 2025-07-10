@@ -47,8 +47,3 @@
 
 ---
 
-**Notes:**
-
-- Use Appwrite's built-in `datetime` type for timestamps.
-- All `id` fields are UUIDs (36 chars).
-- Adjust string sizes as needed for your app.
