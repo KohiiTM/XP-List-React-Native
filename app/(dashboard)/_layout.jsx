@@ -5,9 +5,6 @@ import { Ionicons } from "@expo/vector-icons";
 
 import UserOnly from "../../components/auth/UserOnly";
 
-
-
-
 const DashboardLayout = () => {
   const colorScheme = useColorScheme();
   const theme = Colors[colorScheme] ?? Colors.light;
@@ -25,7 +22,7 @@ const DashboardLayout = () => {
           tabBarInactiveTintColor: theme.iconColor,
         }}
       >
-		<Tabs.Screen
+        <Tabs.Screen
           name="home"
           options={{
             title: "Home",

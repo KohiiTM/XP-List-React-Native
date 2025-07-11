@@ -8,6 +8,7 @@ import {
   TouchableOpacity,
   FlatList,
   ScrollView,
+  ImageBackground,
 } from "react-native";
 import { Link } from "expo-router";
 import Logo from "../assets/images/icon.png";
@@ -62,6 +63,7 @@ const Home = () => {
           <View style={styles.todoHeader}>
             <Text style={styles.todoTitle}>To-Do</Text>
             <Image source={Parchment} style={styles.todoIcon} />
+            
           </View>
           <View style={styles.inputRow}>
             <TextInput
