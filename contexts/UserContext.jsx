@@ -1,4 +1,4 @@
-import { createContext, useState, useEffect } from "react";
+import React, { createContext, useState, useEffect } from "react";
 import { account } from "../lib/appwrite";
 import { ID } from "react-native-appwrite";
 
@@ -23,10 +23,34 @@ export function UserProvider({ children }) {
     setUser(null);
   }
 
-  async function signup(email, password) {
+  async function signup(email, password, username) {
     try {
-      await account.create(ID.unique(), email, password);
+      const userAccount = await account.create(ID.unique(), email, password);
       await login(email, password);
+      const { databases } = await import("../lib/appwrite");
+      const Constants = (await import("expo-constants")).default;
+      const DATABASE_ID = Constants.expoConfig.extra.DATABASE_ID;
+      const COLLECTION_ID = Constants.expoConfig.extra.COLLECTION_ID;
+      const userId = userAccount?.$id || (await account.get()).$id;
+      try {
+        await databases.getDocument(DATABASE_ID, COLLECTION_ID, userId);
+        await databases.updateDocument(DATABASE_ID, COLLECTION_ID, userId, {
+          username,
+        });
+      } catch (err) {
+        if (err.code === 404) {
+          await databases.createDocument(DATABASE_ID, COLLECTION_ID, userId, {
+            userId,
+            username,
+            level: 1,
+            totalXP: 0,
+            currentLevelXP: 0,
+            xpToNextLevel: 100,
+          });
+        } else {
+          throw err;
+        }
+      }
     } catch (error) {
       throw error;
     }

@@ -4,5 +4,6 @@ export default ({ config }) => ({
     DATABASE_ID: process.env.DATABASE_ID,
     COLLECTION_ID: process.env.COLLECTION_ID,
     TASKS_COLLECTION_ID: process.env.TASKS_COLLECTION_ID,
+    LEVELS_COLLECTION_ID: process.env.LEVELS_COLLECTION_ID,
   },
 });

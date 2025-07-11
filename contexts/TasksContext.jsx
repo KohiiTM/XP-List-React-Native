@@ -17,7 +17,10 @@ export function TasksProvider({ children }) {
   const [error, setError] = useState(null);
 
   const fetchTasks = useCallback(async () => {
-    if (!user) return;
+    if (!user) {
+      setTasks([]);
+      return;
+    }
     setLoading(true);
     setError(null);
     try {
@@ -36,7 +39,10 @@ export function TasksProvider({ children }) {
 
   const createTask = useCallback(
     async (taskData) => {
-      if (!user) return;
+      if (!user) {
+        setError("User not authenticated");
+        return;
+      }
       setLoading(true);
       setError(null);
       try {
@@ -66,6 +72,10 @@ export function TasksProvider({ children }) {
 
   const updateTask = useCallback(
     async (taskId, updates) => {
+      if (!user) {
+        setError("User not authenticated");
+        return;
+      }
       setLoading(true);
       setError(null);
       try {
@@ -82,11 +92,15 @@ export function TasksProvider({ children }) {
         setLoading(false);
       }
     },
-    [fetchTasks]
+    [user, fetchTasks]
   );
 
   const deleteTask = useCallback(
     async (taskId) => {
+      if (!user) {
+        setError("User not authenticated");
+        return;
+      }
       setLoading(true);
       setError(null);
       try {
@@ -102,7 +116,7 @@ export function TasksProvider({ children }) {
         setLoading(false);
       }
     },
-    [fetchTasks]
+    [user, fetchTasks]
   );
 
   return (

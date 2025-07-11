@@ -1,7 +1,7 @@
-import React, { useState } from 'react';
+import React, { useState } from 'react'
 import { Keyboard, TouchableWithoutFeedback, StyleSheet, View, Text, TextInput, TouchableOpacity,
- ActivityIndicator } from 'react-native';
-import { Link, useRouter } from 'expo-router';
+ ActivityIndicator } from 'react-native'
+import { Link, useRouter } from 'expo-router'
 import { Colors } from '../../constants/Colors'
 import { useUser } from '../../hooks/useUser'
 
@@ -12,10 +12,10 @@ import Spacer from '../../components/Spacer'
 
 
 const Login = () => {
-  const [email, setEmail] = useState('');
-  const [password, setPassword] = useState('');
-  const [error, setError] = useState(null);
-  const router = useRouter();
+  const [email, setEmail] = useState('')
+  const [password, setPassword] = useState('')
+  const [error, setError] = useState(null)
+  const router = useRouter()
 
 
   const { login } = useUser()
@@ -27,7 +27,7 @@ const Login = () => {
     try {
       await login(email, password)
     } catch (error) {
-      setError(error?.message || String(error) || "Unknown error");
+      setError(error?.message || String(error) || "Unknown error")
     }
   }
 
@@ -68,8 +68,8 @@ const Login = () => {
         
       </ThemedView>
     </TouchableWithoutFeedback>
-  );
-};
+  )
+}
 
 export default Login;
 
@@ -102,7 +102,7 @@ const styles = StyleSheet.create({
     marginHorizontal: 10,
     backgroundColor: '#f5c1c8'
   },
-});
+})
 
 /*
     background: "#2c2137",

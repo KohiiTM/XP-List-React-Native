@@ -12,10 +12,22 @@ import {
   Pressable,
 } from "react-native";
 import { Link } from "expo-router";
-import { Colors } from "../../constants/Colors";
-import { useTasks } from "../../hooks/useTasks";
+import { Colors } from "../constants/Colors";
+import { useTasks } from "../hooks/useTasks";
+import { useLocalTasks } from "../hooks/useLocalTasks";
+import { useUser } from "../hooks/useUser";
+import { useLeveling } from "../hooks/useLeveling";
+import ThemedView from "../components/ThemedView";
+import { Ionicons } from "@expo/vector-icons";
 
 const Tasks = () => {
+  const { user } = useUser();
+
+  // Use appropriate tasks hook based on authentication status
+  const cloudTasks = useTasks();
+  const localTasks = useLocalTasks();
+
+  // Use cloud tasks if authenticated, local tasks if not
   const {
     tasks,
     loading,
@@ -24,7 +36,12 @@ const Tasks = () => {
     updateTask,
     deleteTask,
     createTask,
-  } = useTasks();
+    clearLocalTasks,
+  } = user ? cloudTasks : localTasks;
+
+  // Leveling system (only for authenticated users)
+  const { awardXPForTask } = useLeveling();
+
   const [modalVisible, setModalVisible] = useState(false);
   const [form, setForm] = useState({
     title: "",
@@ -38,12 +55,38 @@ const Tasks = () => {
     fetchTasks();
   }, [fetchTasks]);
 
+  // Clear local tasks when user signs in
+  useEffect(() => {
+    if (user && clearLocalTasks) {
+      clearLocalTasks();
+    }
+  }, [user, clearLocalTasks]);
+
   const handleComplete = async (task) => {
     try {
+      const wasCompleted = task.completed;
       await updateTask(task.$id, {
         completed: !task.completed,
         completedAt: !task.completed ? new Date().toISOString() : null,
       });
+
+      // Award XP if task was just completed and user is authenticated
+      if (!wasCompleted && user && awardXPForTask) {
+        try {
+          console.log("Awarding XP for task:", task.difficulty);
+          const result = await awardXPForTask(task.difficulty);
+          console.log("XP awarded successfully:", result);
+          Alert.alert(
+            "Task Completed!",
+            `+${result.xpReward} XP earned!${
+              result.leveledUp ? "\n🎉 Level Up!" : ""
+            }`
+          );
+        } catch (xpError) {
+          console.log("XP award failed:", xpError.message);
+          Alert.alert("XP Award Failed", xpError.message);
+        }
+      }
     } catch (err) {
       Alert.alert("Error", "Could not update task");
     }
@@ -106,6 +149,19 @@ const Tasks = () => {
 
   const renderTask = ({ item }) => (
     <View style={[styles.taskItem, item.completed && styles.completedTask]}>
+      <TouchableOpacity
+        style={styles.checkboxContainer}
+        onPress={() => handleComplete(item)}
+      >
+        <View
+          style={[styles.checkbox, item.completed && styles.checkboxChecked]}
+        >
+          {item.completed && (
+            <Ionicons name="checkmark" size={16} color="#fff" />
+          )}
+        </View>
+      </TouchableOpacity>
+
       <View style={styles.taskInfo}>
         <Text
           style={[
@@ -125,41 +181,43 @@ const Tasks = () => {
         ) : null}
         <Text style={styles.xpReward}>+{item.xpReward} XP</Text>
       </View>
-      <View style={styles.taskActions}>
-        <TouchableOpacity onPress={() => handleComplete(item)}>
-          <Text style={styles.completeBtn}>
-            {item.completed ? "Undo" : "Done"}
-          </Text>
-        </TouchableOpacity>
-        <TouchableOpacity onPress={() => handleDelete(item.$id)}>
-          <Text style={styles.deleteBtn}>Delete</Text>
-        </TouchableOpacity>
-      </View>
+
+      <TouchableOpacity onPress={() => handleDelete(item.$id)}>
+        <Text style={styles.deleteBtn}>Delete</Text>
+      </TouchableOpacity>
     </View>
   );
 
   if (loading) {
     return (
-      <View style={styles.container}>
+      <ThemedView style={styles.container} safe={true}>
         <ActivityIndicator color={Colors.dark.accent} size="large" />
-      </View>
+      </ThemedView>
     );
   }
 
   if (error) {
     return (
-      <View style={styles.container}>
+      <ThemedView style={styles.container} safe={true}>
         <Text style={styles.error}>{error}</Text>
         <TouchableOpacity onPress={fetchTasks} style={styles.retryBtn}>
           <Text style={styles.retryText}>Retry</Text>
         </TouchableOpacity>
-      </View>
+      </ThemedView>
     );
   }
 
   return (
-    <View style={styles.container}>
-      <Text style={styles.title}>Tasks</Text>
+    <ThemedView style={styles.container} safe={true}>
+      <View style={styles.header}>
+        <Text style={styles.title}>Tasks</Text>
+        {!user && (
+          <View style={styles.offlineNotice}>
+            <Text style={styles.offlineText}>Offline Mode</Text>
+            <Text style={styles.offlineSubtext}>Tasks saved locally</Text>
+          </View>
+        )}
+      </View>
       <FlatList
         data={tasks}
         keyExtractor={(item) => item.$id}
@@ -245,7 +303,7 @@ const Tasks = () => {
       <Link href="/" style={styles.link}>
         Home
       </Link>
-    </View>
+    </ThemedView>
   );
 };
 
@@ -259,27 +317,49 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     alignItems: "center",
-    justifyContent: "center",
-    backgroundColor: Colors.dark.background,
-    padding: 24,
+    justifyContent: "flex-start",
+    // backgroundColor and padding removed, handled by ThemedView
+  },
+  header: {
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "space-between",
+    width: "100%",
+    paddingHorizontal: 20,
+    paddingTop: 10,
+    paddingBottom: 5,
   },
   title: {
     fontWeight: "bold",
     fontSize: 22,
-    marginTop: 10,
-    marginBottom: 10,
     color: Colors.dark.accent,
+  },
+  offlineNotice: {
+    backgroundColor: Colors.dark.warning,
+    paddingVertical: 5,
+    paddingHorizontal: 10,
+    borderRadius: 8,
+  },
+  offlineText: {
+    color: Colors.dark.warningText,
+    fontWeight: "bold",
+  },
+  offlineSubtext: {
+    color: Colors.dark.warningText,
+    fontSize: 12,
   },
   listContent: {
     paddingBottom: 40,
     width: "100%",
+    marginTop: 20,
   },
   taskItem: {
     backgroundColor: Colors.dark.card,
     borderRadius: 10,
     padding: 16,
     marginBottom: 14,
-    width: "100%",
+    marginLeft: 4,
+    width: "98%",
     flexDirection: "row",
     alignItems: "center",
     justifyContent: "space-between",
@@ -288,6 +368,24 @@ const styles = StyleSheet.create({
   },
   completedTask: {
     opacity: 0.5,
+  },
+  checkboxContainer: {
+    marginRight: 12,
+    justifyContent: "center",
+  },
+  checkbox: {
+    width: 24,
+    height: 24,
+    borderRadius: 4,
+    borderWidth: 2,
+    borderColor: Colors.dark.border,
+    backgroundColor: "transparent",
+    justifyContent: "center",
+    alignItems: "center",
+  },
+  checkboxChecked: {
+    backgroundColor: Colors.dark.accent,
+    borderColor: Colors.dark.accent,
   },
   taskInfo: {
     flex: 1,
