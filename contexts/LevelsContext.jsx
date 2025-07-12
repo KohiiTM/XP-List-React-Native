@@ -28,14 +28,12 @@ export function LevelsProvider({ children }) {
     try {
       let response;
       try {
-        // get document by user ID
         response = await databases.getDocument(
           DATABASE_ID,
           COLLECTION_ID,
           user.$id
         );
       } catch (err) {
-        // else create new document
         if (err.code === 404) {
           response = await databases.createDocument(
             DATABASE_ID,

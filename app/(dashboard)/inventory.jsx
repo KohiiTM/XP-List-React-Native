@@ -1,7 +1,7 @@
-import { StyleSheet, Text, View, Image } from "react-native";
-import Logo from "../../assets/images/icon.png";
-import { Link } from "expo-router";
-import { Colors } from "../../constants/Colors";
+import { StyleSheet, Text, View, Image } from "react-native"
+import Logo from "../../assets/images/icon.png"
+import { Link } from "expo-router"
+import { Colors } from "../../constants/Colors"
 
 const Inventory = () => {
   return (

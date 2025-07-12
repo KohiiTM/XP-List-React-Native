@@ -11,6 +11,7 @@ import {
   ImageBackground,
   Alert,
 } from "react-native";
+
 import { Link, useRouter, usePathname } from "expo-router";
 import Logo from "../assets/images/icon.png";
 import Parchment from "../assets/images/parchment.png";
@@ -126,7 +127,7 @@ const Home = () => {
   };
 
   const renderTask = ({ item }) => (
-    <View style={[styles.taskItem, item.completed && styles.checkedTask]}>
+    <View style={[styles.taskCard, item.completed && styles.completedTaskCard]}>
       <TouchableOpacity
         style={styles.checkboxContainer}
         onPress={() => handleComplete(item)}
@@ -140,19 +141,25 @@ const Home = () => {
         </View>
       </TouchableOpacity>
 
-      <Text
-        style={{
-          color: difficultyColors[item.difficulty] || "#fff",
-          fontWeight: "bold",
-          marginRight: 4,
-        }}
-      >
-        {item.difficulty}
-      </Text>
-      <Text style={styles.taskText}>{item.title}</Text>
-      <TouchableOpacity onPress={() => deleteTask(item.$id)}>
-        <Text style={styles.deleteBtn}>×</Text>
-      </TouchableOpacity>
+      <View style={styles.taskContent}>
+        <View style={styles.taskHeader}>
+          <View
+            style={[
+              styles.difficultyBadge,
+              { backgroundColor: difficultyColors[item.difficulty] },
+            ]}
+          >
+            <Text style={styles.difficultyText}>{item.difficulty}</Text>
+          </View>
+          <TouchableOpacity
+            onPress={() => deleteTask(item.$id)}
+            style={styles.deleteButton}
+          >
+            <Ionicons name="close" size={16} color="#d32f2f" />
+          </TouchableOpacity>
+        </View>
+        <Text style={styles.taskText}>{item.title}</Text>
+      </View>
     </View>
   );
 
@@ -185,108 +192,103 @@ const Home = () => {
   ];
 
   return (
-    <ThemedView style={styles.root} safe={true}>
-      {user &&
-        (profileLoading ? (
-          <Text style={styles.username}>Loading...</Text>
-        ) : profileError ? (
-          <Text style={styles.username}>Error</Text>
-        ) : (
-          <Text style={styles.username}>
-            {profile?.username || "No username"}
-          </Text>
-        ))}
-      {/*Icon Navbar*/}
-      <View style={styles.iconNavbarBottom}>
+    <ThemedView style={styles.container} safe={true}>
+      <ScrollView
+        style={styles.scrollView}
+        showsVerticalScrollIndicator={false}
+      >
+        {/* Header Section */}
+        <View style={styles.header}>
+          {user && (
+            <View style={styles.userSection}>
+              {profileLoading ? (
+                <Text style={styles.username}>Loading...</Text>
+              ) : profileError ? (
+                <Text style={styles.username}>Error</Text>
+              ) : (
+                <Text style={styles.username}>
+                  {profile?.username || "No username"}
+                </Text>
+              )}
+            </View>
+          )}
+
+          {/* Level Display */}
+          {user && (
+            <View style={styles.levelSection}>
+              <LevelDisplay
+                level={levelInfo.level}
+                currentLevelXP={levelInfo.currentLevelXP}
+                xpToNextLevel={levelInfo.xpToNextLevel}
+                totalXP={levelInfo.totalXP}
+                levelTitle={levelInfo.levelTitle}
+                levelColor={levelInfo.levelColor}
+                consecutiveCompletions={levelInfo.consecutiveCompletions}
+                compact={true}
+              />
+            </View>
+          )}
+        </View>
+
+        {/* Tasks Section */}
+        <View style={styles.tasksSection}>
+          <View style={styles.sectionHeader}>
+            <Text style={styles.sectionTitle}>Tasks</Text>
+            <View style={styles.taskCount}>
+              <Text style={styles.taskCountText}>
+                {tasks?.length || 0} items
+              </Text>
+            </View>
+          </View>
+
+          {tasksLoading ? (
+            <View style={styles.loadingContainer}>
+              <Text style={styles.loadingText}>Loading tasks...</Text>
+            </View>
+          ) : tasksError ? (
+            <View style={styles.errorContainer}>
+              <Text style={styles.errorText}>{tasksError}</Text>
+            </View>
+          ) : (
+            <FlatList
+              data={tasks}
+              keyExtractor={(item) => item.$id}
+              renderItem={renderTask}
+              scrollEnabled={false}
+              ListEmptyComponent={
+                <View style={styles.emptyContainer}>
+                  <Ionicons name="list-outline" size={48} color="#8b7b9e" />
+                  <Text style={styles.emptyText}>No tasks yet</Text>
+                  <Text style={styles.emptySubtext}>
+                    Add your first task to get started
+                  </Text>
+                </View>
+              }
+            />
+          )}
+        </View>
+      </ScrollView>
+
+      {/* Bottom Navigation */}
+      <View style={styles.bottomNav}>
         {bottomNavItems.map((item) => {
           const isActive =
             item.href === "/"
               ? pathname === "/" || pathname === "" || pathname === "/index"
               : pathname === item.href;
           return (
-            <Link key={item.name} href={item.href} style={styles.iconNavBtn}>
-              <View style={styles.iconWithLabel}>
+            <Link key={item.name} href={item.href} style={styles.navItem}>
+              <View style={[styles.navIcon, isActive && styles.navIconActive]}>
                 <Ionicons
                   name={isActive ? item.focusedIcon : item.icon}
                   size={24}
-                  color={isActive ? theme.iconColorFocused : theme.iconColor}
+                  color={isActive ? "#ffd700" : "#8b7b9e"}
                 />
-                <Text
-                  style={[
-                    styles.iconNavLabel,
-                    {
-                      color: isActive
-                        ? theme.iconColorFocused
-                        : theme.iconColor,
-                    },
-                  ]}
-                >
-                  {item.name}
-                </Text>
               </View>
             </Link>
           );
         })}
       </View>
-      {}
-      {}
-      {user && (
-        <LevelDisplay
-          level={levelInfo.level}
-          currentLevelXP={levelInfo.currentLevelXP}
-          xpToNextLevel={levelInfo.xpToNextLevel}
-          totalXP={levelInfo.totalXP}
-          levelTitle={levelInfo.levelTitle}
-          levelColor={levelInfo.levelColor}
-          consecutiveCompletions={levelInfo.consecutiveCompletions}
-          compact={true}
-        />
-      )}
-      <View style={styles.appWrapper}>
-        <View style={styles.todoApp}>
-          <View style={styles.todoHeader}>
-            <Text style={styles.todoTitle}>To-Do</Text>
-            <Image source={Parchment} style={styles.todoIcon} />
-          </View>
-          {tasksLoading ? (
-            <Text
-              style={{ color: "#fff", textAlign: "center", marginVertical: 16 }}
-            >
-              Loading tasks...
-            </Text>
-          ) : tasksError ? (
-            <Text
-              style={{
-                color: "#d32f2f",
-                textAlign: "center",
-                marginVertical: 16,
-              }}
-            >
-              {tasksError}
-            </Text>
-          ) : (
-            <FlatList
-              data={tasks}
-              keyExtractor={(item) => item.$id}
-              renderItem={renderTask}
-              ListEmptyComponent={
-                <Text
-                  style={{
-                    color: "#fff",
-                    textAlign: "center",
-                    marginVertical: 16,
-                  }}
-                >
-                  No tasks found.
-                </Text>
-              }
-            />
-          )}
-        </View>
-      </View>
-      <TouchableOpacity style={styles.clearBtn}>
-        <Text>Clear All Data</Text>
-      </TouchableOpacity>
     </ThemedView>
   );
 };
@@ -298,197 +300,118 @@ function capitalize(str) {
 export default Home;
 
 const styles = StyleSheet.create({
-  root: {
+  container: {
     flex: 1,
     backgroundColor: "#2c2137",
-    paddingTop: 40,
-    paddingHorizontal: 16,
   },
-  navbar: {
+  scrollView: {
+    flex: 1,
+    paddingHorizontal: 20,
+    paddingTop: 20,
+  },
+  header: {
+    marginBottom: 32,
+  },
+  userSection: {
+    marginBottom: 16,
+  },
+  username: {
+    color: "#ffd700",
+    fontSize: 28,
+    fontWeight: "700",
+    textAlign: "center",
+  },
+  levelSection: {
+    backgroundColor: "#3a2f4c",
+    borderRadius: 16,
+    padding: 16,
+    shadowColor: "#000",
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.1,
+    shadowRadius: 8,
+    elevation: 4,
+  },
+  tasksSection: {
+    marginBottom: 100,
+  },
+  sectionHeader: {
     flexDirection: "row",
     justifyContent: "space-between",
     alignItems: "center",
-    paddingHorizontal: 12,
-    minHeight: 36,
-    backgroundColor: "transparent",
+    marginBottom: 20,
   },
-  navBrand: {
+  sectionTitle: {
     color: "#ffd700",
-    fontSize: 18,
-    fontWeight: "bold",
+    fontSize: 24,
+    fontWeight: "700",
   },
-  navButtons: {
-    flexDirection: "row",
-    gap: 8,
-  },
-  navBtn: {
-    color: "#fff",
-    marginLeft: 10,
-    fontSize: 15,
-    padding: 4,
-    borderBottomWidth: 1,
-    borderBottomColor: "#ffd700",
-  },
-  spriteBar: {
-    flexDirection: "row",
-    alignItems: "center",
-    margin: 16,
-    gap: 12,
-  },
-  spriteVisual: {
-    width: 64,
-    height: 64,
+  taskCount: {
     backgroundColor: "#3a2f4c",
-    borderRadius: 8,
-    justifyContent: "center",
+    paddingHorizontal: 12,
+    paddingVertical: 6,
+    borderRadius: 12,
+  },
+  taskCountText: {
+    color: "#8b7b9e",
+    fontSize: 12,
+    fontWeight: "600",
+  },
+  loadingContainer: {
     alignItems: "center",
+    paddingVertical: 40,
   },
-  playerSprite: {
-    width: 48,
-    height: 48,
-    backgroundColor: "#ffd700",
-    borderRadius: 8,
-  },
-  spriteBtn: {
-    backgroundColor: "#eee",
-    borderRadius: 999,
-    padding: 8,
-    marginHorizontal: 8,
-  },
-  leveling: {
-    marginLeft: 12,
-    alignItems: "flex-start",
-  },
-  levelText: {
-    color: "#ffd700",
-    fontWeight: "bold",
+  loadingText: {
+    color: "#8b7b9e",
     fontSize: 16,
   },
-  xpBar: {
-    width: 100,
-    height: 8,
-    backgroundColor: "#3a2f4c",
-    borderRadius: 4,
-    marginVertical: 4,
-    overflow: "hidden",
+  errorContainer: {
+    alignItems: "center",
+    paddingVertical: 40,
   },
-  xpProgress: {
-    width: "30%",
-    height: 8,
-    backgroundColor: "#ffd700",
-    borderRadius: 4,
+  errorText: {
+    color: "#d32f2f",
+    fontSize: 16,
   },
-  xpText: {
-    color: "#fff",
-    fontSize: 12,
+  emptyContainer: {
+    alignItems: "center",
+    paddingVertical: 60,
   },
-  appWrapper: {
-    flex: 1,
-    flexDirection: "row",
-    marginHorizontal: 8,
-    marginTop: 8,
-  },
-  sidebar: {
-    width: 40,
-    backgroundColor: "#4a3f5c",
-    borderRadius: 12,
-    padding: 8,
-    marginRight: 8,
-  },
-  sidebarTitle: {
-    color: "#ffd700",
-    fontWeight: "bold",
-    marginBottom: 8,
-    fontSize: 14,
-  },
-  noLevels: {
-    color: "#fff",
-    fontStyle: "italic",
+  emptyText: {
+    color: "#8b7b9e",
+    fontSize: 18,
+    fontWeight: "600",
     marginTop: 16,
   },
-  levelTab: {
-    backgroundColor: "#3a2f4c",
-    borderRadius: 8,
-    padding: 8,
-    marginBottom: 8,
-    alignItems: "center",
+  emptySubtext: {
+    color: "#8b7b9e",
+    fontSize: 14,
+    marginTop: 8,
+    textAlign: "center",
   },
-  levelNumber: {
-    color: "#ffd700",
-    fontWeight: "bold",
-  },
-  levelDate: {
-    color: "#fff",
-    fontSize: 10,
-  },
-  todoApp: {
-    flex: 1,
-    backgroundColor: "#4a3f5c",
-    borderRadius: 16,
-    padding: 16,
-  },
-  todoHeader: {
-    flexDirection: "row",
-    alignItems: "center",
-    marginBottom: 16,
-  },
-  todoTitle: {
-    color: "#ffd700",
-    fontSize: 20,
-    fontWeight: "bold",
-    marginRight: 8,
-  },
-  todoIcon: {
-    width: 30,
-    height: 30,
-  },
-  inputRow: {
-    flexDirection: "row",
-    alignItems: "center",
+  taskCard: {
     backgroundColor: "#3a2f4c",
     borderRadius: 12,
-    padding: 8,
-    marginBottom: 16,
-  },
-  input: {
-    flex: 1,
-    color: "#fff",
-    fontSize: 14,
-    padding: 8,
-    backgroundColor: "transparent",
-  },
-  difficultySelect: {
+    padding: 16,
+    marginBottom: 12,
     flexDirection: "row",
-    gap: 4,
-    marginHorizontal: 8,
+    alignItems: "flex-start",
+    shadowColor: "#000",
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.1,
+    shadowRadius: 4,
+    elevation: 2,
   },
-  difficultyOption: {
-    color: "#ffd700",
-    marginHorizontal: 2,
-    fontSize: 12,
-  },
-  addBtn: {
-    backgroundColor: "#ffd700",
-    padding: 8,
-    borderRadius: 8,
-    marginLeft: 4,
-  },
-  taskItem: {
-    flexDirection: "row",
-    alignItems: "center",
-    backgroundColor: "#3a2f4c",
-    borderRadius: 8,
-    padding: 8,
-    marginBottom: 8,
+  completedTaskCard: {
+    opacity: 0.6,
   },
   checkboxContainer: {
-    marginRight: 8,
-    justifyContent: "center",
+    marginRight: 12,
+    marginTop: 2,
   },
   checkbox: {
     width: 20,
     height: 20,
-    borderRadius: 3,
+    borderRadius: 6,
     borderWidth: 2,
     borderColor: "#8b7b9e",
     backgroundColor: "transparent",
@@ -499,86 +422,63 @@ const styles = StyleSheet.create({
     backgroundColor: "#ffd700",
     borderColor: "#ffd700",
   },
-  checkedTask: {
-    opacity: 0.7,
+  taskContent: {
+    flex: 1,
+  },
+  taskHeader: {
+    flexDirection: "row",
+    justifyContent: "space-between",
+    alignItems: "center",
+    marginBottom: 8,
+  },
+  difficultyBadge: {
+    paddingHorizontal: 8,
+    paddingVertical: 4,
+    borderRadius: 8,
+  },
+  difficultyText: {
+    color: "#fff",
+    fontSize: 10,
+    fontWeight: "700",
+    textTransform: "uppercase",
+  },
+  deleteButton: {
+    padding: 4,
   },
   taskText: {
     color: "#fff",
-    flex: 1,
-    marginLeft: 8,
+    fontSize: 16,
+    fontWeight: "500",
+    lineHeight: 22,
   },
-  deleteBtn: {
-    color: "#d32f2f",
-    fontSize: 18,
-    marginLeft: 8,
-  },
-  difficultyEasy: {
-    color: "#8bc34a",
-    fontWeight: "bold",
-    marginRight: 4,
-  },
-  difficultyMedium: {
-    color: "#ff9800",
-    fontWeight: "bold",
-    marginRight: 4,
-  },
-  difficultyHard: {
-    color: "#d32f2f",
-    fontWeight: "bold",
-    marginRight: 4,
-  },
-  clearBtn: {
-    backgroundColor: "#d32f2f",
-    padding: 12,
-    borderRadius: 999,
-    alignItems: "center",
-    margin: 16,
-  },
-  username: {
-    color: "#ffd700",
-    fontSize: 22,
-    fontWeight: "bold",
-    marginTop: 16,
-    marginBottom: 4,
-    textAlign: "center",
-  },
-  iconNavbar: {
-    flexDirection: "row",
-    justifyContent: "center",
-    alignItems: "center",
-    gap: 18,
-    marginTop: 8,
-    marginBottom: 8,
-  },
-  iconNavBtn: {
-    flex: 1,
-    alignItems: "center",
-    justifyContent: "center",
-    padding: 6,
-  },
-  iconWithLabel: {
-    alignItems: "center",
-    justifyContent: "center",
-  },
-  iconNavLabel: {
-    color: "#fff",
-    fontSize: 12,
-    marginTop: 2,
-    fontWeight: "bold",
-  },
-  iconNavbarBottom: {
+  bottomNav: {
+    position: "absolute",
+    bottom: 0,
+    left: 0,
+    right: 0,
+    backgroundColor: "#2c2137",
+    borderTopWidth: 1,
+    borderTopColor: "#3a2f4c",
     flexDirection: "row",
     justifyContent: "space-around",
     alignItems: "center",
-    backgroundColor: "#2c2137",
-    paddingTop: 10,
-    height: 90,
-    borderTopWidth: 1,
-    borderTopColor: "#3a2f4c",
-    position: "absolute",
-    left: 0,
-    right: 0,
-    bottom: 0,
-    zIndex: 10,
+    paddingVertical: 12,
+    paddingHorizontal: 20,
+    paddingBottom: 32,
+  },
+  navItem: {
+    alignItems: "center",
+    flex: 1,
+  },
+  navIcon: {
+    width: 48,
+    height: 48,
+    borderRadius: 24,
+    backgroundColor: "transparent",
+    justifyContent: "center",
+    alignItems: "center",
+  },
+  navIconActive: {
+    backgroundColor: "#3a2f4c",
   },
 });

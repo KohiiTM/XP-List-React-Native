@@ -8,7 +8,6 @@ export function useLocalTasks() {
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState(null)
 
-  // Load tasks from local storage on mount
   useEffect(() => {
     loadTasks()
   }, [])

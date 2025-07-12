@@ -49,6 +49,19 @@ const DashboardLayout = () => {
           }}
         />
         <Tabs.Screen
+          name="tasks"
+          options={{
+            title: "Tasks",
+            tabBarIcon: ({ focused }) => (
+              <Ionicons
+                size={24}
+                name={focused ? "list" : "list-outline"}
+                color={focused ? theme.iconColorFocused : theme.iconColor}
+              />
+            ),
+          }}
+        />
+        <Tabs.Screen
           name="inventory"
           options={{
             title: "Inventory",

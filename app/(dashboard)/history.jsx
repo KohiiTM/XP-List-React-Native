@@ -1,7 +1,7 @@
-import { StyleSheet, Text, View, Image } from "react-native";
-import Logo from "../../assets/images/icon.png";
-import { Link } from "expo-router";
-import { Colors } from "../../constants/Colors";
+import { StyleSheet, Text, View, Image } from "react-native"
+import Logo from "../../assets/images/icon.png"
+import { Link } from "expo-router"
+import { Colors } from "../../constants/Colors"
 
 const History = () => {
   return (
@@ -12,10 +12,10 @@ const History = () => {
         Home
       </Link>
     </View>
-  );
-};
+  )
+}
 
-export default History;
+export default History
 
 const styles = StyleSheet.create({
   container: {
@@ -48,4 +48,4 @@ const styles = StyleSheet.create({
     borderBottomColor: Colors.dark.accent,
     color: Colors.dark.text,
   },
-});
+})
