@@ -8,6 +8,7 @@ import {
   Modal,
   TextInput,
   Alert,
+  ScrollView,
 } from "react-native";
 import { useRouter } from "expo-router";
 import { useUser } from "../../hooks/useUser";
@@ -16,9 +17,9 @@ import { useLeveling } from "../../hooks/useLeveling";
 import Constants from "expo-constants";
 import { databases, account } from "../../lib/appwrite";
 import LevelDisplay from "../../components/LevelDisplay";
+import { Ionicons } from "@expo/vector-icons";
 
 import ProfileIcon from "../../assets/images/icon.png";
-import ThemedButton from "../../components/ThemedButton";
 
 const Profile = () => {
   const { logout, user } = useUser();
@@ -152,68 +153,72 @@ const Profile = () => {
     setNewUsername("");
   };
 
-  // const handleTestXP = async () => {
-  //   try {
-  //     console.log("Testing XP award...")
-  //     const result = await awardXPForTask("easy")
-  //     console.log("Test XP result:", result)
-  //     Alert.alert("Test XP", `Awarded ${result.xpReward} XP!`)
-  //   } catch (err) {
-  //     console.error("Test XP failed:", err)
-  //     Alert.alert("Test XP Failed", err.message)
-  //   }
-  // }
-
   return (
     <View style={styles.container}>
-      <Text style={Colors.text}></Text>
+      <ScrollView
+        style={styles.scrollView}
+        showsVerticalScrollIndicator={false}
+      >
+        {/* Profile Header */}
+        <View style={styles.profileHeader}>
+          <View style={styles.avatarContainer}>
+            <Image source={ProfileIcon} style={styles.avatar} />
+            <TouchableOpacity style={styles.editAvatarButton}>
+              <Ionicons name="camera" size={16} color="#fff" />
+            </TouchableOpacity>
+          </View>
 
-      <Image source={ProfileIcon} style={styles.avatar} />
-      {profileLoading ? (
-        <Text style={styles.username}>Loading...</Text>
-      ) : profileError ? (
-        <Text style={styles.username}>Error</Text>
-      ) : (
-        <View style={styles.usernameContainer}>
-          <Text style={styles.username}>
-            {profile?.username || "No username"}
-          </Text>
+          {profileLoading ? (
+            <Text style={styles.username}>Loading...</Text>
+          ) : profileError ? (
+            <Text style={styles.username}>Error</Text>
+          ) : (
+            <View style={styles.usernameSection}>
+              <Text style={styles.username}>
+                {profile?.username || "No username"}
+              </Text>
+              <TouchableOpacity
+                onPress={handleEditUsername}
+                style={styles.editButton}
+              >
+                <Ionicons name="pencil" size={16} color="#ffd700" />
+              </TouchableOpacity>
+            </View>
+          )}
+
+          <Text style={styles.email}>{user?.email}</Text>
+        </View>
+
+        {/* Level Display Card */}
+        <View style={styles.levelCard}>
+          <LevelDisplay
+            level={levelInfo.level}
+            currentLevelXP={levelInfo.currentLevelXP}
+            xpToNextLevel={levelInfo.xpToNextLevel}
+            totalXP={levelInfo.totalXP}
+            levelTitle={levelInfo.levelTitle}
+            levelColor={levelInfo.levelColor}
+            consecutiveCompletions={levelInfo.consecutiveCompletions}
+            showStreak={false}
+          />
+        </View>
+
+        {/* Action Buttons */}
+        <View style={styles.actionsSection}>
+          <TouchableOpacity style={styles.actionButton} onPress={handleLogout}>
+            <Ionicons name="log-out-outline" size={20} color="#fff" />
+            <Text style={styles.actionButtonText}>Logout</Text>
+          </TouchableOpacity>
+
           <TouchableOpacity
-            onPress={handleEditUsername}
-            style={styles.editButton}
+            style={[styles.actionButton, styles.deleteButton]}
+            onPress={handleDeleteAccount}
           >
-            <Text style={styles.editButtonText}>Edit</Text>
+            <Ionicons name="trash-outline" size={20} color="#fff" />
+            <Text style={styles.actionButtonText}>Delete Account</Text>
           </TouchableOpacity>
         </View>
-      )}
-      <LevelDisplay
-        level={levelInfo.level}
-        currentLevelXP={levelInfo.currentLevelXP}
-        xpToNextLevel={levelInfo.xpToNextLevel}
-        totalXP={levelInfo.totalXP}
-        levelTitle={levelInfo.levelTitle}
-        levelColor={levelInfo.levelColor}
-        consecutiveCompletions={levelInfo.consecutiveCompletions}
-        showStreak={false}
-      />
-
-      <ThemedButton style={styles.btn} onPress={handleLogout}>
-        <Text style={styles.btnText}>Logout</Text>
-      </ThemedButton>
-
-      <ThemedButton
-        style={[styles.btn, { marginTop: 12, backgroundColor: "#d32f2f" }]}
-        onPress={handleDeleteAccount}
-      >
-        <Text style={styles.btnText}>Delete Account</Text>
-      </ThemedButton>
-
-      {/* <ThemedButton */}
-      {/*   style={[styles.btn, { marginTop: 12, backgroundColor: "#4CAF50" }]} */}
-      {/*   onPress={handleTestXP} */}
-      {/* > */}
-      {/*   <Text style={styles.btnText}>Test XP Award</Text> */}
-      {/* </ThemedButton> */}
+      </ScrollView>
 
       {/* Edit Username Modal */}
       <Modal
@@ -263,72 +268,95 @@ export default Profile;
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    alignItems: "center",
-    justifyContent: "center",
     backgroundColor: "#2c2137",
-    padding: 24,
+  },
+  scrollView: {
+    flex: 1,
+    paddingHorizontal: 20,
+    paddingTop: 60,
+  },
+  profileHeader: {
+    alignItems: "center",
+    marginBottom: 32,
+  },
+  avatarContainer: {
+    position: "relative",
+    marginBottom: 16,
   },
   avatar: {
-    width: 80,
-    height: 80,
-    borderRadius: 40,
-    marginBottom: 16,
+    width: 100,
+    height: 100,
+    borderRadius: 50,
+    borderWidth: 3,
+    borderColor: "#ffd700",
+  },
+  editAvatarButton: {
+    position: "absolute",
+    bottom: 0,
+    right: 0,
+    backgroundColor: "#3a2f4c",
+    width: 32,
+    height: 32,
+    borderRadius: 16,
+    justifyContent: "center",
+    alignItems: "center",
+    borderWidth: 2,
+    borderColor: "#2c2137",
+  },
+  usernameSection: {
+    flexDirection: "row",
+    alignItems: "center",
+    marginBottom: 8,
   },
   username: {
     color: "#ffd700",
-    fontSize: 22,
-    fontWeight: "bold",
-    marginBottom: 4,
-  },
-  usernameContainer: {
-    flexDirection: "row",
-    alignItems: "center",
-    marginBottom: 4,
+    fontSize: 28,
+    fontWeight: "700",
+    marginRight: 8,
   },
   editButton: {
-    backgroundColor: Colors.dark.accent,
-    paddingHorizontal: 12,
-    paddingVertical: 6,
-    borderRadius: 16,
-    marginLeft: 12,
-  },
-  editButtonText: {
-    color: "#fff",
-    fontSize: 12,
-    fontWeight: "bold",
+    padding: 8,
   },
   email: {
-    color: "#fff",
+    color: "#8b7b9e",
     fontSize: 16,
-    marginBottom: 16,
+    fontWeight: "500",
   },
-  levelBox: {
-    backgroundColor: "#4a3f5c",
+  levelCard: {
+    backgroundColor: "#3a2f4c",
+    borderRadius: 16,
+    padding: 20,
+    marginBottom: 32,
+    shadowColor: "#000",
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.1,
+    shadowRadius: 8,
+    elevation: 4,
+  },
+  actionsSection: {
+    gap: 16,
+  },
+  actionButton: {
+    backgroundColor: "#3a2f4c",
     borderRadius: 12,
     padding: 16,
-    marginBottom: 24,
+    flexDirection: "row",
     alignItems: "center",
+    justifyContent: "center",
+    shadowColor: "#000",
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.1,
+    shadowRadius: 4,
+    elevation: 2,
   },
-  level: {
-    color: "#ffd700",
-    fontWeight: "bold",
-    fontSize: 18,
-  },
-  xp: {
+  actionButtonText: {
     color: "#fff",
     fontSize: 16,
+    fontWeight: "600",
+    marginLeft: 12,
   },
-  btn: {
+  deleteButton: {
     backgroundColor: "#d32f2f",
-    borderRadius: 8,
-    padding: 12,
-    width: 160,
-    alignItems: "center",
-  },
-  btnText: {
-    color: "#fff",
-    fontWeight: "bold",
-    fontSize: 16,
   },
   modalOverlay: {
     flex: 1,
@@ -338,15 +366,20 @@ const styles = StyleSheet.create({
   },
   modalContent: {
     backgroundColor: Colors.dark.card,
-    borderRadius: 12,
+    borderRadius: 16,
     padding: 24,
     width: "90%",
     maxWidth: 400,
     alignItems: "stretch",
+    shadowColor: "#000",
+    shadowOffset: { width: 0, height: 8 },
+    shadowOpacity: 0.2,
+    shadowRadius: 16,
+    elevation: 8,
   },
   modalTitle: {
     fontSize: 20,
-    fontWeight: "bold",
+    fontWeight: "700",
     color: Colors.dark.accent,
     marginBottom: 16,
     textAlign: "center",
@@ -354,37 +387,43 @@ const styles = StyleSheet.create({
   usernameInput: {
     backgroundColor: Colors.dark.background,
     color: Colors.dark.text,
-    borderRadius: 8,
-    padding: 12,
-    marginBottom: 16,
+    borderRadius: 12,
+    padding: 16,
+    marginBottom: 20,
     borderWidth: 1,
     borderColor: Colors.dark.border,
     fontSize: 16,
   },
   modalActions: {
     flexDirection: "row",
-    justifyContent: "flex-end",
-    marginTop: 8,
+    justifyContent: "space-between",
   },
   cancelBtn: {
-    marginRight: 16,
-    paddingVertical: 8,
-    paddingHorizontal: 18,
-    borderRadius: 8,
+    flex: 1,
+    marginRight: 8,
+    paddingVertical: 12,
+    paddingHorizontal: 20,
+    borderRadius: 12,
     backgroundColor: Colors.dark.border,
+    alignItems: "center",
   },
   cancelBtnText: {
     color: Colors.dark.text,
-    fontWeight: "bold",
+    fontWeight: "600",
+    fontSize: 16,
   },
   saveBtn: {
-    paddingVertical: 8,
-    paddingHorizontal: 18,
-    borderRadius: 8,
+    flex: 1,
+    marginLeft: 8,
+    paddingVertical: 12,
+    paddingHorizontal: 20,
+    borderRadius: 12,
     backgroundColor: Colors.dark.accent,
+    alignItems: "center",
   },
   saveBtnText: {
     color: "#fff",
-    fontWeight: "bold",
+    fontWeight: "600",
+    fontSize: 16,
   },
 });
