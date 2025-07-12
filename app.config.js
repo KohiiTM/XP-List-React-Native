@@ -5,5 +5,6 @@ export default ({ config }) => ({
     COLLECTION_ID: process.env.COLLECTION_ID,
     TASKS_COLLECTION_ID: process.env.TASKS_COLLECTION_ID,
     LEVELS_COLLECTION_ID: process.env.LEVELS_COLLECTION_ID,
+    STORAGE_BUCKET_ID: process.env.STORAGE_BUCKET_ID,
   },
 });

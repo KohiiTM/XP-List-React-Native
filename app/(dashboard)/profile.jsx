@@ -16,8 +16,10 @@ import { Colors } from "../../constants/Colors";
 import { useLeveling } from "../../hooks/useLeveling";
 import Constants from "expo-constants";
 import { databases, account } from "../../lib/appwrite";
+import { storage, client } from "../../lib/appwrite";
 import LevelDisplay from "../../components/LevelDisplay";
 import { Ionicons } from "@expo/vector-icons";
+import ProfilePicturePicker from "../../components/ProfilePicturePicker";
 
 import ProfileIcon from "../../assets/images/icon.png";
 
@@ -31,6 +33,7 @@ const Profile = () => {
   const [editModalVisible, setEditModalVisible] = useState(false);
   const [newUsername, setNewUsername] = useState("");
   const [updating, setUpdating] = useState(false);
+  const [profilePictureFileId, setProfilePictureFileId] = useState(null);
 
   useEffect(() => {
     const fetchProfile = async () => {
@@ -46,6 +49,7 @@ const Profile = () => {
           user.$id
         );
         setProfile(doc);
+        setProfilePictureFileId(doc.profilePictureFileId || null);
       } catch (err) {
         setProfileError("Could not load profile");
       } finally {
@@ -74,7 +78,6 @@ const Profile = () => {
           style: "destructive",
           onPress: async () => {
             try {
-              // Delete user document from database
               const DATABASE_ID = Constants.expoConfig.extra.DATABASE_ID;
               const COLLECTION_ID = Constants.expoConfig.extra.COLLECTION_ID;
 
@@ -84,10 +87,8 @@ const Profile = () => {
                 user.$id
               );
 
-              // Delete user account from Appwrite
               await account.delete();
 
-              // Log out and redirect to login
               logout();
               router.replace("/login");
 
@@ -133,7 +134,6 @@ const Profile = () => {
         username: newUsername.trim(),
       });
 
-      // Update local state
       setProfile((prev) => ({
         ...prev,
         username: newUsername.trim(),
@@ -153,19 +153,54 @@ const Profile = () => {
     setNewUsername("");
   };
 
+  const handleProfilePictureUpdate = async (fileId) => {
+    try {
+      const DATABASE_ID = Constants.expoConfig.extra.DATABASE_ID;
+      const COLLECTION_ID = Constants.expoConfig.extra.COLLECTION_ID;
+
+      await databases.updateDocument(DATABASE_ID, COLLECTION_ID, user.$id, {
+        profilePictureFileId: fileId,
+      });
+
+      setProfilePictureFileId(fileId);
+      setProfile((prev) => ({
+        ...prev,
+        profilePictureFileId: fileId,
+      }));
+
+      Alert.alert("Success", "Profile picture updated successfully!");
+    } catch (error) {
+      console.error("Failed to update profile picture:", error);
+      Alert.alert(
+        "Error",
+        "Failed to update profile picture. Please try again."
+      );
+    }
+  };
+
+  const getProfilePictureUrl = () => {
+    if (!profilePictureFileId) return null;
+    const STORAGE_BUCKET_ID = Constants.expoConfig.extra.STORAGE_BUCKET_ID;
+    const imageUrl = `https://nyc.cloud.appwrite.io/v1/storage/buckets/${STORAGE_BUCKET_ID}/files/${profilePictureFileId}/view?project=686b296f003243270240`;
+    console.log("Generated image URL:", imageUrl);
+    console.log("File ID:", profilePictureFileId);
+    console.log("Storage Bucket ID:", STORAGE_BUCKET_ID);
+    return imageUrl;
+  };
+
   return (
     <View style={styles.container}>
       <ScrollView
         style={styles.scrollView}
         showsVerticalScrollIndicator={false}
       >
-        {/* Profile Header */}
         <View style={styles.profileHeader}>
           <View style={styles.avatarContainer}>
-            <Image source={ProfileIcon} style={styles.avatar} />
-            <TouchableOpacity style={styles.editAvatarButton}>
-              <Ionicons name="camera" size={16} color="#fff" />
-            </TouchableOpacity>
+            <ProfilePicturePicker
+              currentImageUrl={getProfilePictureUrl()}
+              onImageUpdate={handleProfilePictureUpdate}
+              size={100}
+            />
           </View>
 
           {profileLoading ? (
@@ -189,7 +224,6 @@ const Profile = () => {
           <Text style={styles.email}>{user?.email}</Text>
         </View>
 
-        {/* Level Display Card */}
         <View style={styles.levelCard}>
           <LevelDisplay
             level={levelInfo.level}
@@ -203,7 +237,6 @@ const Profile = () => {
           />
         </View>
 
-        {/* Action Buttons */}
         <View style={styles.actionsSection}>
           <TouchableOpacity style={styles.actionButton} onPress={handleLogout}>
             <Ionicons name="log-out-outline" size={20} color="#fff" />
@@ -220,7 +253,6 @@ const Profile = () => {
         </View>
       </ScrollView>
 
-      {/* Edit Username Modal */}
       <Modal
         visible={editModalVisible}
         animationType="slide"
@@ -282,26 +314,6 @@ const styles = StyleSheet.create({
   avatarContainer: {
     position: "relative",
     marginBottom: 16,
-  },
-  avatar: {
-    width: 100,
-    height: 100,
-    borderRadius: 50,
-    borderWidth: 3,
-    borderColor: "#ffd700",
-  },
-  editAvatarButton: {
-    position: "absolute",
-    bottom: 0,
-    right: 0,
-    backgroundColor: "#3a2f4c",
-    width: 32,
-    height: 32,
-    borderRadius: 16,
-    justifyContent: "center",
-    alignItems: "center",
-    borderWidth: 2,
-    borderColor: "#2c2137",
   },
   usernameSection: {
     flexDirection: "row",
