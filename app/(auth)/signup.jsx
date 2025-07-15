@@ -82,9 +82,7 @@ const Signup = () => {
         <Link href="/login" style={[styles.link, { marginTop: 100 }]}>
           Already have an account? Login
         </Link>
-        <Link href="/" style={styles.link}>
-          Home
-        </Link>
+        
       </ThemedView>
     </TouchableWithoutFeedback>
   );

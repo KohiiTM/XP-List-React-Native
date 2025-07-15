@@ -13,20 +13,20 @@ import {
 } from "react-native";
 
 import { Link, useRouter, usePathname } from "expo-router";
-import Logo from "../assets/images/icon.png";
-import Parchment from "../assets/images/parchment.png";
-import ThemedView from "../components/ThemedView";
-import { useUser } from "../hooks/useUser";
-import { useLeveling } from "../hooks/useLeveling";
+import Logo from "../../assets/images/icon.png";
+import Parchment from "../../assets/images/parchment.png";
+import ThemedView from "../../components/ThemedView";
+import { useUser } from "../../hooks/useUser";
+import { useLeveling } from "../../hooks/useLeveling";
 import Constants from "expo-constants";
-import { databases } from "../lib/appwrite";
-import { useTasks } from "../hooks/useTasks";
-import { useLocalTasks } from "../hooks/useLocalTasks";
+import { databases } from "../../lib/appwrite";
+import { useTasks } from "../../hooks/useTasks";
+import { useLocalTasks } from "../../hooks/useLocalTasks";
 import { Ionicons } from "@expo/vector-icons";
 import { useColorScheme } from "react-native";
-import LevelDisplay from "../components/LevelDisplay";
+import LevelDisplay from "../../components/LevelDisplay";
 
-import { Colors } from "../constants/Colors";
+import { Colors } from "../../constants/Colors";
 
 const Home = () => {
   const { user } = useUser();
@@ -98,7 +98,6 @@ const Home = () => {
         completedAt: !task.completed ? new Date().toISOString() : null,
       });
 
-      // Award XP if task was just completed and user is authenticated
       if (!wasCompleted && user && awardXPForTask) {
         try {
           console.log("Awarding XP for task:", task.difficulty);
@@ -163,33 +162,7 @@ const Home = () => {
     </View>
   );
 
-  const bottomNavItems = [
-    { name: "Home", icon: "home-outline", focusedIcon: "home", href: "/" },
-    {
-      name: "Profile",
-      icon: "person-outline",
-      focusedIcon: "person",
-      href: "/profile",
-    },
-    {
-      name: "Inventory",
-      icon: "diamond-outline",
-      focusedIcon: "diamond",
-      href: "/inventory",
-    },
-    {
-      name: "Tasks",
-      icon: "list-outline",
-      focusedIcon: "list",
-      href: "/tasks",
-    },
-    {
-      name: "History",
-      icon: "time-outline",
-      focusedIcon: "time",
-      href: "/history",
-    },
-  ];
+  
 
   return (
     <ThemedView style={styles.container} safe={true}>
@@ -269,26 +242,7 @@ const Home = () => {
         </View>
       </ScrollView>
 
-      {/* Bottom Navigation */}
-      <View style={styles.bottomNav}>
-        {bottomNavItems.map((item) => {
-          const isActive =
-            item.href === "/"
-              ? pathname === "/" || pathname === "" || pathname === "/index"
-              : pathname === item.href;
-          return (
-            <Link key={item.name} href={item.href} style={styles.navItem}>
-              <View style={[styles.navIcon, isActive && styles.navIconActive]}>
-                <Ionicons
-                  name={isActive ? item.focusedIcon : item.icon}
-                  size={24}
-                  color={isActive ? "#ffd700" : "#8b7b9e"}
-                />
-              </View>
-            </Link>
-          );
-        })}
-      </View>
+      
     </ThemedView>
   );
 };

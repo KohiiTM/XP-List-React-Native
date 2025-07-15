@@ -61,7 +61,6 @@ const Login = () => {
         {error && <Text style={styles.error}>{error}</Text>}
 
         
-        <Link href="/" style={styles.link}>Home</Link>
         
         <Link href="/signup" style={[styles.link, { marginTop: 100}]}>Don't have an account? Sign up</Link>
         

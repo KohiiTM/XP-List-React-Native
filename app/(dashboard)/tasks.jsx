@@ -23,11 +23,9 @@ import { Ionicons } from "@expo/vector-icons";
 const Tasks = () => {
   const { user } = useUser();
 
-  // Use appropriate tasks hook based on authentication status
   const cloudTasks = useTasks();
   const localTasks = useLocalTasks();
 
-  // Use cloud tasks if authenticated, local tasks if not
   const {
     tasks,
     loading,
@@ -148,7 +146,7 @@ const Tasks = () => {
   };
 
   const renderTask = ({ item }) => (
-    <View style={[styles.taskItem, item.completed && styles.completedTask]}>
+    <ThemedView style={[styles.taskItem, item.completed && styles.completedTask]} safe={true}>
       <TouchableOpacity
         style={styles.checkboxContainer}
         onPress={() => handleComplete(item)}
@@ -185,7 +183,7 @@ const Tasks = () => {
       <TouchableOpacity onPress={() => handleDelete(item.$id)}>
         <Text style={styles.deleteBtn}>Delete</Text>
       </TouchableOpacity>
-    </View>
+    </ThemedView>
   );
 
   if (loading) {
@@ -300,9 +298,7 @@ const Tasks = () => {
           </View>
         </View>
       </Modal>
-      <Link href="/" style={styles.link}>
-        Home
-      </Link>
+      
     </ThemedView>
   );
 };
@@ -333,6 +329,7 @@ const styles = StyleSheet.create({
     fontWeight: "bold",
     fontSize: 22,
     color: Colors.dark.accent,
+    paddingTop: 100,
   },
   offlineNotice: {
     backgroundColor: Colors.dark.warning,
