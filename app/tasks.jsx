@@ -23,11 +23,9 @@ import { Ionicons } from "@expo/vector-icons";
 const Tasks = () => {
   const { user } = useUser();
 
-  // Use appropriate tasks hook based on authentication status
   const cloudTasks = useTasks();
   const localTasks = useLocalTasks();
 
-  // Use cloud tasks if authenticated, local tasks if not
   const {
     tasks,
     loading,
@@ -39,7 +37,6 @@ const Tasks = () => {
     clearLocalTasks,
   } = user ? cloudTasks : localTasks;
 
-  // Leveling system (only for authenticated users)
   const { awardXPForTask } = useLeveling();
 
   const [modalVisible, setModalVisible] = useState(false);
@@ -55,7 +52,6 @@ const Tasks = () => {
     fetchTasks();
   }, [fetchTasks]);
 
-  // Clear local tasks when user signs in
   useEffect(() => {
     if (user && clearLocalTasks) {
       clearLocalTasks();
