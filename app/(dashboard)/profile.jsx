@@ -224,7 +224,19 @@ const Profile = () => {
           <Text style={styles.email}>{user?.email}</Text>
         </View>
 
-        <View style={styles.levelCard}>
+        <View
+          style={{
+            width: "95%",
+            height: 100,
+            borderRadius: 50,
+            flexDirection: "row",
+            alignItems: "center",
+            alignSelf: "center",
+            backgroundColor: "#3a2f4c",
+            paddingHorizontal: 16,
+            marginBottom: 24,
+          }}
+        >
           <LevelDisplay
             level={levelInfo.level}
             currentLevelXP={levelInfo.currentLevelXP}
