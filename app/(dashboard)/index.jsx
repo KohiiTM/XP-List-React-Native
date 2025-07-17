@@ -25,6 +25,7 @@ import { useLocalTasks } from "../../hooks/useLocalTasks";
 import { Ionicons } from "@expo/vector-icons";
 import { useColorScheme } from "react-native";
 import LevelDisplay from "../../components/LevelDisplay";
+import ProfilePicturePicker from "../../components/ProfilePicturePicker";
 
 import { Colors } from "../../constants/Colors";
 
@@ -162,47 +163,49 @@ const Home = () => {
     </View>
   );
 
-  
+  const getProfilePictureUrl = () => {
+    if (!profile?.profilePictureFileId) return null;
+    const STORAGE_BUCKET_ID = Constants.expoConfig.extra.STORAGE_BUCKET_ID;
+    return `https://nyc.cloud.appwrite.io/v1/storage/buckets/${STORAGE_BUCKET_ID}/files/${profile.profilePictureFileId}/view?project=686b296f003243270240`;
+  };
 
   return (
     <ThemedView style={styles.container} safe={true}>
+      {user && (
+        <View style={{ alignItems: "center", marginTop: 12, marginBottom: 8 }}>
+          <ProfilePicturePicker
+            currentImageUrl={getProfilePictureUrl()}
+            onImageUpdate={() => {}}
+            size={100}
+          />
+          {profileLoading ? (
+            <Text style={styles.username}>Loading...</Text>
+          ) : profileError ? (
+            <Text style={styles.username}>Error</Text>
+          ) : (
+            <Text style={styles.username}>
+              {profile?.username || "No username"}
+            </Text>
+          )}
+          <View style={styles.levelSection}>
+            <LevelDisplay
+              level={levelInfo.level}
+              currentLevelXP={levelInfo.currentLevelXP}
+              xpToNextLevel={levelInfo.xpToNextLevel}
+              totalXP={levelInfo.totalXP}
+              levelTitle={levelInfo.levelTitle}
+              levelColor={levelInfo.levelColor}
+              consecutiveCompletions={levelInfo.consecutiveCompletions}
+              showStreak={true}
+            />
+          </View>
+        </View>
+      )}
       <ScrollView
         style={styles.scrollView}
         showsVerticalScrollIndicator={false}
       >
-        {}
-        <View style={styles.header}>
-          {user && (
-            <View style={styles.userSection}>
-              {profileLoading ? (
-                <Text style={styles.username}>Loading...</Text>
-              ) : profileError ? (
-                <Text style={styles.username}>Error</Text>
-              ) : (
-                <Text style={styles.username}>
-                  {profile?.username || "No username"}
-                </Text>
-              )}
-            </View>
-          )}
-
-          {/* Level Display */}
-          {user && (
-            <View style={styles.levelSection}>
-              <LevelDisplay
-                level={levelInfo.level}
-                currentLevelXP={levelInfo.currentLevelXP}
-                xpToNextLevel={levelInfo.xpToNextLevel}
-                totalXP={levelInfo.totalXP}
-                levelTitle={levelInfo.levelTitle}
-                levelColor={levelInfo.levelColor}
-                consecutiveCompletions={levelInfo.consecutiveCompletions}
-                compact={true}
-              />
-            </View>
-          )}
-        </View>
-
+        <View style={styles.header} />
         {/* Tasks Section */}
         <View style={styles.tasksSection}>
           <View style={styles.sectionHeader}>
@@ -241,8 +244,6 @@ const Home = () => {
           )}
         </View>
       </ScrollView>
-
-      
     </ThemedView>
   );
 };
@@ -274,17 +275,17 @@ const styles = StyleSheet.create({
     fontSize: 28,
     fontWeight: "700",
     textAlign: "center",
-    paddingTop: 100,
   },
   levelSection: {
+    flexDirection: "row",
+    alignItems: "center",
+    borderRadius: 50,
+    paddingVertical: 6,
+    paddingHorizontal: 40,
     backgroundColor: "#3a2f4c",
-    borderRadius: 16,
-    padding: 16,
-    shadowColor: "#000",
-    shadowOffset: { width: 0, height: 4 },
-    shadowOpacity: 0.1,
-    shadowRadius: 8,
-    elevation: 4,
+    width: "95%",
+    height: 100,
+    alignSelf: "center",
   },
   tasksSection: {
     marginBottom: 100,

@@ -11,27 +11,34 @@ const LevelDisplay = ({
   levelColor,
   consecutiveCompletions = 0,
   showStreak = true,
-  compact = false,
 }) => {
   const progressPercentage = Math.min(
     100,
     (currentLevelXP / xpToNextLevel) * 100
   );
 
-  if (compact) {
-    return (
-      <View style={styles.compactContainer}>
-        <View style={styles.compactLevelInfo}>
-          <Text style={[styles.compactLevel, { color: levelColor }]}>
-            Level {level}
-          </Text>
-          <Text style={styles.compactTitle}>{levelTitle}</Text>
-        </View>
-        <View style={styles.compactProgressContainer}>
-          <View style={styles.compactProgressBar}>
+  return (
+    <View style={styles.container}>
+      {/* Level Info */}
+      <View style={styles.levelInfoSection}>
+        <Text
+          style={[styles.level, { color: levelColor }]}
+          numberOfLines={1}
+          ellipsizeMode="tail"
+        >
+          Level {level}
+        </Text>
+        <Text style={styles.title} numberOfLines={1} ellipsizeMode="tail">
+          {levelTitle}
+        </Text>
+      </View>
+      {/* Progress Bar */}
+      <View style={styles.progressSection}>
+        <View style={styles.progressBarContainer}>
+          <View style={styles.progressBarBg}>
             <View
               style={[
-                styles.compactProgressFill,
+                styles.progressFill,
                 {
                   width: `${progressPercentage}%`,
                   backgroundColor: levelColor,
@@ -39,65 +46,17 @@ const LevelDisplay = ({
               ]}
             />
           </View>
-          <Text style={styles.compactXPText}>
-            {currentLevelXP} / {xpToNextLevel} XP
-          </Text>
         </View>
+        <Text style={styles.xpText} numberOfLines={1} ellipsizeMode="tail">
+          {currentLevelXP} / {xpToNextLevel} XP
+        </Text>
       </View>
-    );
-  }
-
-  return (
-    <View style={styles.container}>
-      <View style={styles.header}>
-        <View style={styles.levelInfo}>
-          <Text style={[styles.level, { color: levelColor }]}>
-            Level {level}
-          </Text>
-          <Text style={[styles.title, { color: levelColor }]}>
-            {levelTitle}
-          </Text>
-        </View>
+      {/* Streak */}
+      <View style={styles.streakSection}>
         {showStreak && consecutiveCompletions > 0 && (
-          <View style={styles.streakContainer}>
-            <Text style={styles.streakText}>
-              🔥 {consecutiveCompletions} day streak
-            </Text>
-          </View>
-        )}
-      </View>
-
-      <View style={styles.progressContainer}>
-        <View style={styles.progressBar}>
-          <View
-            style={[
-              styles.progressFill,
-              { width: `${progressPercentage}%`, backgroundColor: levelColor },
-            ]}
-          />
-        </View>
-        <View style={styles.xpInfo}>
-          <Text style={styles.xpText}>
-            {currentLevelXP} / {xpToNextLevel} XP
-          </Text>
-        </View>
-      </View>
-
-      <View style={styles.statsContainer}>
-        <View style={styles.statItem}>
-          <Text style={styles.statLabel}>Progress</Text>
-          <Text style={styles.statValue}>
-            {Math.round(progressPercentage)}%
-          </Text>
-        </View>
-        <View style={styles.statItem}>
-          <Text style={styles.statLabel}>XP to Next</Text>
-          <Text style={styles.statValue}>{xpToNextLevel - currentLevelXP}</Text>
-        </View>
-        {showStreak && (
-          <View style={styles.statItem}>
-            <Text style={styles.statLabel}>Streak</Text>
-            <Text style={styles.statValue}>{consecutiveCompletions}</Text>
+          <View style={styles.streakPill}>
+            <Text style={styles.streakIcon}>🔥</Text>
+            <Text style={styles.streakText}>{consecutiveCompletions}</Text>
           </View>
         )}
       </View>
@@ -107,123 +66,81 @@ const LevelDisplay = ({
 
 const styles = StyleSheet.create({
   container: {
-    backgroundColor: Colors.dark.card,
-    borderRadius: 12,
-    padding: 16,
-    marginVertical: 8,
-  },
-  header: {
     flexDirection: "row",
-    justifyContent: "space-between",
     alignItems: "center",
-    marginBottom: 12,
+    borderRadius: 50,
+    width: "100%",
+    height: "100%",
+    backgroundColor: Colors.dark.card,
+    paddingHorizontal: 16,
+    overflow: "hidden",
+    justifyContent: "space-between",
   },
-  levelInfo: {
+  levelInfoSection: {
     flex: 1,
+    minWidth: 0,
+    justifyContent: "center",
   },
   level: {
-    fontSize: 24,
+    fontSize: 20,
     fontWeight: "bold",
-    marginBottom: 4,
   },
   title: {
-    fontSize: 16,
+    fontSize: 14,
+    color: Colors.dark.textSecondary,
     fontWeight: "600",
   },
-  streakContainer: {
-    backgroundColor: Colors.dark.warning,
-    paddingHorizontal: 8,
-    paddingVertical: 4,
-    borderRadius: 12,
+  progressSection: {
+    flex: 2,
+    minWidth: 0,
+    alignItems: "center",
+    justifyContent: "center",
   },
-  streakText: {
-    color: Colors.dark.warningText,
-    fontSize: 12,
-    fontWeight: "bold",
+  progressBarContainer: {
+    width: "100%",
+    maxWidth: 160,
+    marginBottom: 2,
   },
-  progressContainer: {
-    marginBottom: 12,
-  },
-  progressBar: {
-    height: 8,
+  progressBarBg: {
+    width: "100%",
+    height: 10,
     backgroundColor: Colors.dark.background,
-    borderRadius: 4,
+    borderRadius: 5,
     overflow: "hidden",
-    marginBottom: 8,
   },
   progressFill: {
     height: "100%",
-    borderRadius: 4,
-  },
-  xpInfo: {
-    flexDirection: "row",
-    justifyContent: "space-between",
-    alignItems: "center",
+    borderRadius: 5,
   },
   xpText: {
     color: Colors.dark.text,
-    fontSize: 14,
+    fontSize: 12,
     fontWeight: "600",
+    textAlign: "center",
   },
-  totalXPText: {
-    color: Colors.dark.textSecondary,
-    fontSize: 12,
+  streakSection: {
+    flex: 1,
+    minWidth: 0,
+    alignItems: "flex-end",
+    justifyContent: "center",
   },
-  statsContainer: {
+  streakPill: {
     flexDirection: "row",
-    justifyContent: "space-around",
-  },
-  statItem: {
     alignItems: "center",
+    backgroundColor: Colors.dark.warning,
+    borderRadius: 12,
+    paddingHorizontal: 10,
+    paddingVertical: 4,
+    alignSelf: "flex-end",
   },
-  statLabel: {
-    color: Colors.dark.textSecondary,
-    fontSize: 12,
-    marginBottom: 2,
-  },
-  statValue: {
-    color: Colors.dark.text,
+  streakIcon: {
     fontSize: 16,
+    marginRight: 4,
+  },
+  streakText: {
+    color: Colors.dark.warningText,
+    fontSize: 14,
     fontWeight: "bold",
-  },
-  // Compact styles
-  compactContainer: {
-    flexDirection: "row",
-    alignItems: "center",
-    justifyContent: "space-between",
-    paddingVertical: 8,
-  },
-  compactLevelInfo: {
-    flex: 1,
-  },
-  compactLevel: {
-    fontSize: 18,
-    fontWeight: "bold",
-    marginBottom: 2,
-  },
-  compactTitle: {
-    color: Colors.dark.textSecondary,
-    fontSize: 12,
-  },
-  compactProgressContainer: {
-    flex: 1,
-    marginLeft: 12,
-  },
-  compactProgressBar: {
-    height: 6,
-    backgroundColor: Colors.dark.background,
-    borderRadius: 3,
-    overflow: "hidden",
-    marginBottom: 4,
-  },
-  compactProgressFill: {
-    height: "100%",
-    borderRadius: 3,
-  },
-  compactXPText: {
-    color: Colors.dark.textSecondary,
-    fontSize: 10,
-    textAlign: "right",
   },
 });
 
