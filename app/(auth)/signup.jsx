@@ -9,12 +9,12 @@ import {
   TouchableOpacity,
 } from "react-native";
 import { Link, useRouter } from "expo-router";
-import { Colors } from "../../constants/Colors";
-import { useUser } from "../../hooks/useUser";
+import { Colors } from "@constants/Colors";
+import { useUser } from "@hooks/useUser";
 
-import ThemedButton from "../../components/ThemedButton";
-import ThemedView from "../../components/ThemedView";
-import Spacer from "../../components/Spacer";
+import ThemedButton from "@components/ThemedButton";
+import ThemedView from "@components/ThemedView";
+import Spacer from "@components/spacer";
 
 const Signup = () => {
   const [username, setUsername] = useState("");
@@ -82,7 +82,6 @@ const Signup = () => {
         <Link href="/login" style={[styles.link, { marginTop: 100 }]}>
           Already have an account? Login
         </Link>
-        
       </ThemedView>
     </TouchableWithoutFeedback>
   );

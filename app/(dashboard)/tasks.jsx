@@ -12,13 +12,14 @@ import {
   Pressable,
 } from "react-native";
 import { Link } from "expo-router";
-import { Colors } from "../../constants/Colors";
-import { useTasks } from "../../hooks/useTasks";
-import { useLocalTasks } from "../../hooks/useLocalTasks";
-import { useUser } from "../../hooks/useUser";
-import { useLeveling } from "../../hooks/useLeveling";
-import ThemedView from "../../components/ThemedView";
+import { Colors } from "@constants/Colors";
+import { useTasks } from "@hooks/useTasks";
+import { useLocalTasks } from "@hooks/useLocalTasks";
+import { useUser } from "@hooks/useUser";
+import { useLeveling } from "@hooks/useLeveling";
 import { Ionicons } from "@expo/vector-icons";
+
+import ThemedView from "@components/ThemedView";
 
 const Tasks = () => {
   const { user } = useUser();

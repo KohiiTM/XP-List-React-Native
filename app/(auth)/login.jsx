@@ -1,35 +1,39 @@
-import React, { useState } from 'react'
-import { Keyboard, TouchableWithoutFeedback, StyleSheet, View, Text, TextInput, TouchableOpacity,
- ActivityIndicator } from 'react-native'
-import { Link, useRouter } from 'expo-router'
-import { Colors } from '../../constants/Colors'
-import { useUser } from '../../hooks/useUser'
+import React, { useState } from "react";
+import {
+  Keyboard,
+  TouchableWithoutFeedback,
+  StyleSheet,
+  View,
+  Text,
+  TextInput,
+  TouchableOpacity,
+  ActivityIndicator,
+} from "react-native";
+import { Link, useRouter } from "expo-router";
+import { Colors } from "@constants/Colors";
+import { useUser } from "@hooks/useUser";
 
-
-import ThemedButton from '../../components/ThemedButton'
-import ThemedView from '../../components/ThemedView'
-import Spacer from '../../components/Spacer'
-
+import ThemedButton from "@components/ThemedButton";
+import ThemedView from "@components/ThemedView";
+import Spacer from "@components/spacer";
 
 const Login = () => {
-  const [email, setEmail] = useState('')
-  const [password, setPassword] = useState('')
-  const [error, setError] = useState(null)
-  const router = useRouter()
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
+  const [error, setError] = useState(null);
+  const router = useRouter();
 
-
-  const { login } = useUser()
-
+  const { login } = useUser();
 
   const handleSubmit = async () => {
-    setError(null)
+    setError(null);
 
     try {
-      await login(email, password)
+      await login(email, password);
     } catch (error) {
-      setError(error?.message || String(error) || "Unknown error")
+      setError(error?.message || String(error) || "Unknown error");
     }
-  }
+  };
 
   return (
     <TouchableWithoutFeedback onPress={Keyboard.dismiss}>
@@ -60,48 +64,67 @@ const Login = () => {
         <Spacer />
         {error && <Text style={styles.error}>{error}</Text>}
 
-        
-        
-        <Link href="/signup" style={[styles.link, { marginTop: 100}]}>Don't have an account? Sign up</Link>
-        
-        
+        <Link href="/signup" style={[styles.link, { marginTop: 100 }]}>
+          Don't have an account? Sign up
+        </Link>
       </ThemedView>
     </TouchableWithoutFeedback>
-  )
-}
+  );
+};
 
 export default Login;
 
 const styles = StyleSheet.create({
   container: {
-    flex: 1, justifyContent: 'center', alignItems: 'center', backgroundColor: '#2c2137', padding: 24,
+    flex: 1,
+    justifyContent: "center",
+    alignItems: "center",
+    backgroundColor: "#2c2137",
+    padding: 24,
   },
   title: {
-    color: '#ffd700', fontSize: 22, fontWeight: 'bold', marginBottom: 24,
+    color: "#ffd700",
+    fontSize: 22,
+    fontWeight: "bold",
+    marginBottom: 24,
   },
   input: {
-    width: '100%', maxWidth: 320, backgroundColor: '#3a2f4c', color: '#fff',
-    borderRadius: 8, padding: 12, marginBottom: 16, fontSize: 16,
+    width: "100%",
+    maxWidth: 320,
+    backgroundColor: "#3a2f4c",
+    color: "#fff",
+    borderRadius: 8,
+    padding: 12,
+    marginBottom: 16,
+    fontSize: 16,
   },
   btn: {
-    backgroundColor: '#ffd700', borderRadius: 8, padding: 12, width: '100%', maxWidth: 320, alignItems: 'center', marginBottom: 16,
+    backgroundColor: "#ffd700",
+    borderRadius: 8,
+    padding: 12,
+    width: "100%",
+    maxWidth: 320,
+    alignItems: "center",
+    marginBottom: 16,
   },
   pressed: {
-    opacity: 0.8
+    opacity: 0.8,
   },
   link: {
-    color: '#ffd700', marginTop: 8, textDecorationLine: 'underline',
+    color: "#ffd700",
+    marginTop: 8,
+    textDecorationLine: "underline",
   },
   error: {
-    color: '#d32f2f',
+    color: "#d32f2f",
     marginBottom: 12,
     padding: 10,
     borderWidth: 1,
     borderRadius: 15,
     marginHorizontal: 10,
-    backgroundColor: '#f5c1c8'
+    backgroundColor: "#f5c1c8",
   },
-})
+});
 
 /*
     background: "#2c2137",

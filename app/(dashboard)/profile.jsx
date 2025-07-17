@@ -11,17 +11,17 @@ import {
   ScrollView,
 } from "react-native";
 import { useRouter } from "expo-router";
-import { useUser } from "../../hooks/useUser";
-import { Colors } from "../../constants/Colors";
-import { useLeveling } from "../../hooks/useLeveling";
+import { useUser } from "@hooks/useUser";
+import { Colors } from "@constants/Colors";
+import { useLeveling } from "@hooks/useLeveling";
 import Constants from "expo-constants";
-import { databases, account } from "../../lib/appwrite";
-import { storage, client } from "../../lib/appwrite";
-import LevelDisplay from "../../components/LevelDisplay";
+import { databases, account } from "@lib/appwrite";
+import { storage, client } from "@lib/appwrite";
+import LevelDisplay from "@components/LevelDisplay";
 import { Ionicons } from "@expo/vector-icons";
-import ProfilePicturePicker from "../../components/ProfilePicturePicker";
+import ProfilePicturePicker from "@components/ProfilePicturePicker";
 
-import ProfileIcon from "../../assets/images/icon.png";
+import ProfileIcon from "@assets/images/icon.png";
 
 const Profile = () => {
   const { logout, user } = useUser();

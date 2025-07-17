@@ -1,11 +1,11 @@
 import React from "react";
 import { StyleSheet, Text, View } from "react-native";
-import { Colors } from "../../constants/Colors";
-import ThemedView from "../../components/ThemedView";
-import LevelHistoryTabs from "../../components/LevelHistoryTabs";
-import { useTasks } from "../../hooks/useTasks";
-import { useLocalTasks } from "../../hooks/useLocalTasks";
-import { useUser } from "../../hooks/useUser";
+import { Colors } from "@constants/Colors";
+import ThemedView from "@components/ThemedView";
+import LevelHistoryTabs from "@components/LevelHistoryTabs";
+import { useTasks } from "@hooks/useTasks";
+import { useLocalTasks } from "@hooks/useLocalTasks";
+import { useUser } from "@hooks/useUser";
 
 const History = () => {
   const { user } = useUser();

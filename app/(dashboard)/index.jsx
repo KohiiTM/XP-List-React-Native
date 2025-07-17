@@ -13,21 +13,22 @@ import {
 } from "react-native";
 
 import { Link, useRouter, usePathname } from "expo-router";
-import Logo from "../../assets/images/icon.png";
-import Parchment from "../../assets/images/parchment.png";
-import ThemedView from "../../components/ThemedView";
-import { useUser } from "../../hooks/useUser";
-import { useLeveling } from "../../hooks/useLeveling";
+import Logo from "@assets/images/icon.png";
+import Parchment from "@assets/images/parchment.png";
+import { useUser } from "@hooks/useUser";
+import { useLeveling } from "@hooks/useLeveling";
 import Constants from "expo-constants";
-import { databases } from "../../lib/appwrite";
-import { useTasks } from "../../hooks/useTasks";
-import { useLocalTasks } from "../../hooks/useLocalTasks";
+import { databases } from "@constants/appwrite";
+import { useTasks } from "@hooks/useTasks";
+import { useLocalTasks } from "@hooks/useLocalTasks";
 import { Ionicons } from "@expo/vector-icons";
 import { useColorScheme } from "react-native";
-import LevelDisplay from "../../components/LevelDisplay";
-import ProfilePicturePicker from "../../components/ProfilePicturePicker";
+import LevelDisplay from "@components/LevelDisplay";
+import ProfilePicturePicker from "@components/ProfilePicturePicker";
 
-import { Colors } from "../../constants/Colors";
+import { Colors } from "@constants/Colors";
+
+import ThemedView from "@components/ThemedView";
 
 const Home = () => {
   const { user } = useUser();
