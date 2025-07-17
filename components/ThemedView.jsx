@@ -1,6 +1,9 @@
-import { View, SafeAreaView, useColorScheme } from "react-native";
+import { View, useColorScheme } from "react-native";
 import { Colors } from "../constants/Colors";
-import { useSafeAreaInsets } from "react-native-safe-area-context";
+import {
+  SafeAreaView,
+  useSafeAreaInsets,
+} from "react-native-safe-area-context";
 
 const ThemedView = ({ style, safe = false, ...props }) => {
   const colorScheme = useColorScheme();
@@ -11,18 +14,20 @@ const ThemedView = ({ style, safe = false, ...props }) => {
       <View style={[{ backgroundColor: theme.background }, style]} {...props} />
     );
 
-  const insets = useSafeAreaInsets;
+  const insets = useSafeAreaInsets();
 
   return (
-    <View
+    <SafeAreaView
       style={[
         {
           backgroundColor: theme.background,
+          flex: 1,
           paddingTop: insets.top,
           paddingBottom: insets.bottom,
         },
         style,
       ]}
+      edges={["top", "bottom", "left", "right"]}
       {...props}
     />
   );

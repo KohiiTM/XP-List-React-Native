@@ -48,6 +48,7 @@ const Tasks = () => {
   });
   const [formError, setFormError] = useState("");
   const [submitting, setSubmitting] = useState(false);
+  // Remove showCompleted state and toggle logic
 
   useEffect(() => {
     fetchTasks();
@@ -146,7 +147,10 @@ const Tasks = () => {
   };
 
   const renderTask = ({ item }) => (
-    <ThemedView style={[styles.taskItem, item.completed && styles.completedTask]} safe={true}>
+    <ThemedView
+      style={[styles.taskItem, item.completed && styles.completedTask]}
+      safe={true}
+    >
       <TouchableOpacity
         style={styles.checkboxContainer}
         onPress={() => handleComplete(item)}
@@ -186,6 +190,9 @@ const Tasks = () => {
     </ThemedView>
   );
 
+  const activeTasks = tasks ? tasks.filter((task) => !task.completed) : [];
+  const hasTasks = activeTasks.length > 0;
+
   if (loading) {
     return (
       <ThemedView style={styles.container} safe={true}>
@@ -216,13 +223,19 @@ const Tasks = () => {
           </View>
         )}
       </View>
-      <FlatList
-        data={tasks}
-        keyExtractor={(item) => item.$id}
-        renderItem={renderTask}
-        contentContainerStyle={styles.listContent}
-        ListEmptyComponent={<Text style={styles.empty}>No tasks found.</Text>}
-      />
+      {/* Toggle removed */}
+      {hasTasks ? (
+        <FlatList
+          data={activeTasks}
+          keyExtractor={(item) => item.$id}
+          renderItem={renderTask}
+          contentContainerStyle={styles.listContent}
+        />
+      ) : (
+        <View style={styles.emptyContainer}>
+          <Text style={styles.empty}>No tasks found.</Text>
+        </View>
+      )}
       <TouchableOpacity style={styles.fab} onPress={handleOpenModal}>
         <Text style={styles.fabText}>+</Text>
       </TouchableOpacity>
@@ -298,7 +311,6 @@ const Tasks = () => {
           </View>
         </View>
       </Modal>
-      
     </ThemedView>
   );
 };
@@ -329,7 +341,6 @@ const styles = StyleSheet.create({
     fontWeight: "bold",
     fontSize: 22,
     color: Colors.dark.accent,
-    paddingTop: 100,
   },
   offlineNotice: {
     backgroundColor: Colors.dark.warning,
@@ -451,7 +462,13 @@ const styles = StyleSheet.create({
     color: Colors.dark.textSecondary,
     fontSize: 16,
     textAlign: "center",
-    marginTop: 40,
+    marginTop: 0,
+  },
+  emptyContainer: {
+    flex: 1,
+    justifyContent: "center",
+    alignItems: "center",
+    minHeight: 200,
   },
   fab: {
     position: "absolute",
@@ -564,4 +581,5 @@ const styles = StyleSheet.create({
     color: "#fff",
     fontWeight: "bold",
   },
+  // Remove completedTaskDim and toggle styles
 });

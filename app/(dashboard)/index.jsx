@@ -170,7 +170,7 @@ const Home = () => {
         style={styles.scrollView}
         showsVerticalScrollIndicator={false}
       >
-        {/* Header Section */}
+        {}
         <View style={styles.header}>
           {user && (
             <View style={styles.userSection}>
@@ -274,6 +274,7 @@ const styles = StyleSheet.create({
     fontSize: 28,
     fontWeight: "700",
     textAlign: "center",
+    paddingTop: 100,
   },
   levelSection: {
     backgroundColor: "#3a2f4c",

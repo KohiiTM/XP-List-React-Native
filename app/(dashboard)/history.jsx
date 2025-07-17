@@ -1,51 +1,62 @@
-import { StyleSheet, Text, View, Image } from "react-native"
-import Logo from "../../assets/images/icon.png"
-import { Link } from "expo-router"
-import { Colors } from "../../constants/Colors"
+import React from "react";
+import { StyleSheet, Text, View } from "react-native";
+import { Colors } from "../../constants/Colors";
+import ThemedView from "../../components/ThemedView";
+import LevelHistoryTabs from "../../components/LevelHistoryTabs";
+import { useTasks } from "../../hooks/useTasks";
+import { useLocalTasks } from "../../hooks/useLocalTasks";
+import { useUser } from "../../hooks/useUser";
 
 const History = () => {
+  const { user } = useUser();
+  const cloudTasks = useTasks();
+  const localTasks = useLocalTasks();
+  const { tasks, loading, error, fetchTasks } = user ? cloudTasks : localTasks;
+
+  React.useEffect(() => {
+    fetchTasks();
+  }, [fetchTasks]);
+
   return (
-    <View style={styles.container}>
+    <ThemedView style={styles.container} safe={true}>
       <Text style={styles.title}>History</Text>
+      {loading ? (
+        <Text style={styles.loading}>Loading...</Text>
+      ) : error ? (
+        <Text style={styles.error}>{error}</Text>
+      ) : (
+        <LevelHistoryTabs tasks={tasks} />
+      )}
+    </ThemedView>
+  );
+};
 
-      <Link href="/" style={styles.link}>
-        Home
-      </Link>
-    </View>
-  )
-}
-
-export default History
+export default History;
 
 const styles = StyleSheet.create({
   container: {
     flex: 1,
     alignItems: "center",
-    justifyContent: "center", // fixed typo
+    justifyContent: "flex-start",
     backgroundColor: Colors.dark.background,
+    paddingTop: 40,
+    paddingHorizontal: 10,
   },
   title: {
     fontWeight: "bold",
-    fontSize: 18,
-    marginTop: 10,
-    marginBottom: 30,
+    fontSize: 22,
+    marginBottom: 20,
     color: Colors.dark.accent,
+    textAlign: "center",
   },
-  card: {
-    backgroundColor: Colors.dark.card,
-    padding: 20,
-    borderRadius: 8,
-    // boxShadow is not supported in React Native, so omit or use elevation if needed
+  loading: {
+    color: Colors.dark.accent,
+    marginTop: 40,
+    textAlign: "center",
   },
-  img: {
-    marginVertical: 20,
-    maxHeight: 40,
-    maxWidth: 40,
+  error: {
+    color: Colors.dark.error,
+    marginTop: 40,
+    textAlign: "center",
   },
-  link: {
-    marginVertical: 10,
-    borderBottomWidth: 1,
-    borderBottomColor: Colors.dark.accent,
-    color: Colors.dark.text,
-  },
-})
+});
