@@ -41,7 +41,6 @@ const LevelDisplay = ({
                 styles.progressFill,
                 {
                   width: `${progressPercentage}%`,
-                  backgroundColor: levelColor,
                 },
               ]}
             />
@@ -103,7 +102,7 @@ const styles = StyleSheet.create({
   },
   progressBarBg: {
     width: "100%",
-    height: 10,
+    height: 16,
     backgroundColor: Colors.dark.background,
     borderRadius: 5,
     overflow: "hidden",
@@ -111,6 +110,7 @@ const styles = StyleSheet.create({
   progressFill: {
     height: "100%",
     borderRadius: 5,
+    backgroundColor: "#ffd700",
   },
   xpText: {
     color: Colors.dark.text,

@@ -232,7 +232,7 @@ const Profile = () => {
             flexDirection: "row",
             alignItems: "center",
             alignSelf: "center",
-            backgroundColor: "#3a2f4c",
+            backgroundColor: "transparent",
             paddingHorizontal: 16,
             marginBottom: 24,
           }}

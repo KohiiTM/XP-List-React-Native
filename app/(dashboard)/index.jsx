@@ -282,7 +282,7 @@ const styles = StyleSheet.create({
     borderRadius: 50,
     paddingVertical: 6,
     paddingHorizontal: 40,
-    backgroundColor: "#3a2f4c",
+    backgroundColor: "transparent",
     width: "95%",
     height: 100,
     alignSelf: "center",

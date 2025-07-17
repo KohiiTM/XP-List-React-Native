@@ -147,10 +147,7 @@ const Tasks = () => {
   };
 
   const renderTask = ({ item }) => (
-    <ThemedView
-      style={[styles.taskItem, item.completed && styles.completedTask]}
-      safe={true}
-    >
+    <View style={[styles.taskCard, item.completed && styles.completedTaskCard]}>
       <TouchableOpacity
         style={styles.checkboxContainer}
         onPress={() => handleComplete(item)}
@@ -159,35 +156,31 @@ const Tasks = () => {
           style={[styles.checkbox, item.completed && styles.checkboxChecked]}
         >
           {item.completed && (
-            <Ionicons name="checkmark" size={16} color="#fff" />
+            <Ionicons name="checkmark" size={14} color="#fff" />
           )}
         </View>
       </TouchableOpacity>
 
-      <View style={styles.taskInfo}>
-        <Text
-          style={[
-            styles.difficulty,
-            {
-              backgroundColor:
-                difficultyColors[item.difficulty] || Colors.dark.border,
-              color: "#fff",
-            },
-          ]}
-        >
-          {item.difficulty}
-        </Text>
-        <Text style={styles.taskTitle}>{item.title}</Text>
-        {item.description ? (
-          <Text style={styles.taskDesc}>{item.description}</Text>
-        ) : null}
-        <Text style={styles.xpReward}>+{item.xpReward} XP</Text>
+      <View style={styles.taskContent}>
+        <View style={styles.taskHeader}>
+          <View
+            style={[
+              styles.difficultyBadge,
+              { backgroundColor: difficultyColors[item.difficulty] },
+            ]}
+          >
+            <Text style={styles.difficultyText}>{item.difficulty}</Text>
+          </View>
+          <TouchableOpacity
+            onPress={() => handleDelete(item.$id)}
+            style={styles.deleteButton}
+          >
+            <Ionicons name="close" size={16} color="#d32f2f" />
+          </TouchableOpacity>
+        </View>
+        <Text style={styles.taskText}>{item.title}</Text>
       </View>
-
-      <TouchableOpacity onPress={() => handleDelete(item.$id)}>
-        <Text style={styles.deleteBtn}>Delete</Text>
-      </TouchableOpacity>
-    </ThemedView>
+    </View>
   );
 
   const activeTasks = tasks ? tasks.filter((task) => !task.completed) : [];
@@ -324,9 +317,7 @@ export default Tasks;
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    alignItems: "center",
     justifyContent: "flex-start",
-    // backgroundColor and padding removed, handled by ThemedView
   },
   header: {
     flexDirection: "row",
@@ -360,40 +351,71 @@ const styles = StyleSheet.create({
     paddingBottom: 40,
     width: "100%",
     marginTop: 20,
+    alignItems: "stretch",
   },
-  taskItem: {
-    backgroundColor: Colors.dark.card,
-    borderRadius: 10,
+  taskCard: {
+    backgroundColor: "#3a2f4c",
+    borderRadius: 12,
     padding: 16,
-    marginBottom: 14,
-    marginLeft: 4,
-    width: "98%",
+    marginBottom: 12,
     flexDirection: "row",
-    alignItems: "center",
-    justifyContent: "space-between",
-    borderWidth: 1,
-    borderColor: Colors.dark.border,
+    alignItems: "flex-start",
+    shadowColor: "#000",
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.1,
+    shadowRadius: 4,
+    elevation: 2,
+    width: "100%",
   },
-  completedTask: {
-    opacity: 0.5,
+  completedTaskCard: {
+    opacity: 0.6,
   },
   checkboxContainer: {
     marginRight: 12,
-    justifyContent: "center",
+    marginTop: 2,
   },
   checkbox: {
-    width: 24,
-    height: 24,
-    borderRadius: 4,
+    width: 20,
+    height: 20,
+    borderRadius: 6,
     borderWidth: 2,
-    borderColor: Colors.dark.border,
+    borderColor: "#8b7b9e",
     backgroundColor: "transparent",
     justifyContent: "center",
     alignItems: "center",
   },
   checkboxChecked: {
-    backgroundColor: Colors.dark.accent,
-    borderColor: Colors.dark.accent,
+    backgroundColor: "#ffd700",
+    borderColor: "#ffd700",
+  },
+  taskContent: {
+    flex: 1,
+  },
+  taskHeader: {
+    flexDirection: "row",
+    justifyContent: "space-between",
+    alignItems: "center",
+    marginBottom: 8,
+  },
+  difficultyBadge: {
+    paddingHorizontal: 8,
+    paddingVertical: 4,
+    borderRadius: 8,
+  },
+  difficultyText: {
+    color: "#fff",
+    fontSize: 10,
+    fontWeight: "700",
+    textTransform: "uppercase",
+  },
+  deleteButton: {
+    padding: 4,
+  },
+  taskText: {
+    color: "#fff",
+    fontSize: 16,
+    fontWeight: "500",
+    lineHeight: 22,
   },
   taskInfo: {
     flex: 1,
