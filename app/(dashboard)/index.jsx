@@ -26,10 +26,26 @@ import { Ionicons } from "@expo/vector-icons";
 import { useColorScheme } from "react-native";
 import LevelDisplay from "@components/LevelDisplay";
 import ProfilePicturePicker from "@components/ProfilePicturePicker";
+import AsyncStorage from "@react-native-async-storage/async-storage";
+import itemsData from "../../assets/items.json";
 
 import { Colors } from "@constants/Colors";
 
 import ThemedView from "@components/ThemedView";
+
+const DAILY_CHEST_KEY = "dailyChestLastOpened";
+const CHEST_COOLDOWN = 24 * 60 * 60 * 1000; // 24 hours in ms
+
+// Helper to format ms as hh:mm:ss
+function formatCooldown(ms) {
+  const totalSeconds = Math.ceil(ms / 1000);
+  const hours = Math.floor(totalSeconds / 3600);
+  const minutes = Math.floor((totalSeconds % 3600) / 60);
+  const seconds = totalSeconds % 60;
+  return `${hours.toString().padStart(2, "0")}:${minutes
+    .toString()
+    .padStart(2, "0")}:${seconds.toString().padStart(2, "0")}`;
+}
 
 const Home = () => {
   const { user } = useUser();
@@ -60,6 +76,10 @@ const Home = () => {
   const theme = Colors[colorScheme] ?? Colors.light;
   const [taskDetailModalVisible, setTaskDetailModalVisible] = useState(false);
   const [selectedTask, setSelectedTask] = useState(null);
+  const [chestModalVisible, setChestModalVisible] = useState(false);
+  const [chestReward, setChestReward] = useState(null);
+  const [chestCooldown, setChestCooldown] = useState(0);
+  const [chestLoading, setChestLoading] = useState(true);
 
   useEffect(() => {
     fetchTasks();
@@ -94,6 +114,25 @@ const Home = () => {
     };
     fetchProfile();
   }, [user]);
+
+  useEffect(() => {
+    const checkCooldown = async () => {
+      setChestLoading(true);
+      const lastOpened = await AsyncStorage.getItem(DAILY_CHEST_KEY);
+      if (lastOpened) {
+        const diff = Date.now() - parseInt(lastOpened, 10);
+        if (diff < CHEST_COOLDOWN) {
+          setChestCooldown(CHEST_COOLDOWN - diff);
+        } else {
+          setChestCooldown(0);
+        }
+      } else {
+        setChestCooldown(0);
+      }
+      setChestLoading(false);
+    };
+    checkCooldown();
+  }, []);
 
   const handleComplete = async (task) => {
     try {
@@ -132,6 +171,35 @@ const Home = () => {
     setTaskDetailModalVisible(false);
     setSelectedTask(null);
   };
+
+  const openChest = async () => {
+    if (chestCooldown > 0) {
+      Alert.alert(
+        "Chest Cooldown",
+        `You can open the chest again in ${Math.ceil(
+          chestCooldown / 1000 / 60
+        )} minutes.`
+      );
+      return;
+    }
+    // Pick a random item
+    const items = itemsData;
+    const reward = items[Math.floor(Math.random() * items.length)];
+    setChestReward(reward);
+    setChestModalVisible(true);
+    await AsyncStorage.setItem(DAILY_CHEST_KEY, Date.now().toString());
+    setChestCooldown(CHEST_COOLDOWN);
+  };
+
+  // Add a timer to update cooldown every second
+  useEffect(() => {
+    if (chestCooldown > 0) {
+      const interval = setInterval(() => {
+        setChestCooldown((prev) => (prev > 1000 ? prev - 1000 : 0));
+      }, 1000);
+      return () => clearInterval(interval);
+    }
+  }, [chestCooldown]);
 
   const difficultyColors = {
     easy: "#8bc34a",
@@ -188,6 +256,21 @@ const Home = () => {
 
   return (
     <ThemedView style={styles.container} safe={true}>
+      {/* Daily Chest Button */}
+      <TouchableOpacity
+        style={styles.chestButton}
+        onPress={openChest}
+        disabled={chestCooldown > 0 || chestLoading}
+      >
+        <Ionicons
+          name="cube"
+          size={36}
+          color={chestCooldown > 0 ? "#8b7b9e" : "#ffd700"}
+        />
+        <Text style={styles.chestText}>
+          {chestCooldown > 0 ? formatCooldown(chestCooldown) : "Daily Chest"}
+        </Text>
+      </TouchableOpacity>
       {user && (
         <View style={{ alignItems: "center", marginTop: 12, marginBottom: 8 }}>
           <ProfilePicturePicker
@@ -288,6 +371,50 @@ const Home = () => {
             >
               <Text style={styles.closeBtnText}>Close</Text>
             </TouchableOpacity>
+          </TouchableOpacity>
+        </TouchableOpacity>
+      </Modal>
+      {/* Chest Reward Modal */}
+      <Modal
+        visible={chestModalVisible}
+        animationType="fade"
+        transparent
+        onRequestClose={() => setChestModalVisible(false)}
+      >
+        <TouchableOpacity
+          style={styles.chestModalOverlay}
+          activeOpacity={1}
+          onPress={() => setChestModalVisible(false)}
+        >
+          <TouchableOpacity
+            style={styles.chestModalContent}
+            activeOpacity={1}
+            onPress={(e) => e.stopPropagation()}
+          >
+            {chestReward && (
+              <>
+                <Ionicons
+                  name="cube"
+                  size={48}
+                  color="#ffd700"
+                  style={{ marginBottom: 10 }}
+                />
+                <Text style={styles.chestModalTitle}>You received:</Text>
+                <Image
+                  source={
+                    chestReward.image === "parchment.png"
+                      ? require("../../assets/images/parchment.png")
+                      : require("../../assets/images/icon.png")
+                  }
+                  style={styles.chestModalImg}
+                  resizeMode="contain"
+                />
+                <Text style={styles.chestModalItem}>{chestReward.name}</Text>
+                <Text style={styles.chestModalDesc}>
+                  {chestReward.description}
+                </Text>
+              </>
+            )}
           </TouchableOpacity>
         </TouchableOpacity>
       </Modal>
@@ -525,5 +652,58 @@ const styles = StyleSheet.create({
     color: "#2c2137",
     fontSize: 18,
     fontWeight: "700",
+  },
+  chestButton: {
+    position: "absolute",
+    top: 80, // Adjust as needed
+    left: 20,
+    backgroundColor: "#3a2f4c",
+    borderRadius: 20,
+    padding: 10,
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "center",
+    zIndex: 10,
+  },
+  chestText: {
+    color: "#ffd700",
+    fontSize: 14,
+    fontWeight: "600",
+    marginLeft: 8,
+  },
+  chestModalOverlay: {
+    flex: 1,
+    justifyContent: "center",
+    alignItems: "center",
+    backgroundColor: "rgba(0, 0, 0, 0.5)",
+  },
+  chestModalContent: {
+    backgroundColor: "#3a2f4c",
+    borderRadius: 10,
+    padding: 20,
+    width: "80%",
+    alignItems: "center",
+  },
+  chestModalTitle: {
+    color: "#ffd700",
+    fontSize: 20,
+    fontWeight: "700",
+    marginBottom: 15,
+  },
+  chestModalImg: {
+    width: 100,
+    height: 100,
+    marginBottom: 15,
+  },
+  chestModalItem: {
+    color: "#fff",
+    fontSize: 18,
+    fontWeight: "600",
+    marginBottom: 10,
+  },
+  chestModalDesc: {
+    color: "#8b7b9e",
+    fontSize: 14,
+    textAlign: "center",
   },
 });
