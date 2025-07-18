@@ -8,6 +8,7 @@ import {
   TouchableOpacity,
   Dimensions,
   Modal,
+  useWindowDimensions,
 } from "react-native";
 import { Link } from "expo-router";
 import { Colors } from "@constants/Colors";
@@ -34,6 +35,7 @@ const Inventory = () => {
   const [selectedSlot, setSelectedSlot] = useState(null);
   const [modalVisible, setModalVisible] = useState(false);
   const [modalItem, setModalItem] = useState(null);
+  const { height: windowHeight } = useWindowDimensions();
 
   useEffect(() => {
     setItems(itemsData);
@@ -44,9 +46,14 @@ const Inventory = () => {
       ? items
       : items.filter((item) => item.category === selectedCategory);
 
-  // Fill up to NUM_SLOTS with empty slots
+  // Calculate how many rows fit in the grid area
+  const gridAreaHeight = windowHeight - 200; // Adjust 200 for header/tabs/margins
+  const numRows = Math.ceil(gridAreaHeight / (SLOT_SIZE + 12)); // 12 = margin*2
+  const minSlots = numRows * NUM_COLUMNS;
+
+  // Fill up to minSlots with empty slots
   const slots = [...filteredItems];
-  while (slots.length < NUM_SLOTS) {
+  while (slots.length < minSlots) {
     slots.push(null);
   }
 

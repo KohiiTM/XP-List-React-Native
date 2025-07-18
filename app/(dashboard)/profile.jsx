@@ -20,8 +20,14 @@ import { storage, client } from "@lib/appwrite";
 import LevelDisplay from "@components/LevelDisplay";
 import { Ionicons } from "@expo/vector-icons";
 import ProfilePicturePicker from "@components/ProfilePicturePicker";
+import AsyncStorage from "@react-native-async-storage/async-storage";
+import { useTasks } from "@hooks/useTasks";
+import { useLocalTasks } from "@hooks/useLocalTasks";
 
 import ProfileIcon from "@assets/images/icon.png";
+
+const DEV_MODE_PASSWORD = Constants.expoConfig.extra?.DEV_MODE_PASSWORD;
+const DAILY_CHEST_KEY = "dailyChestLastOpened";
 
 const Profile = () => {
   const { logout, user } = useUser();
@@ -34,6 +40,12 @@ const Profile = () => {
   const [newUsername, setNewUsername] = useState("");
   const [updating, setUpdating] = useState(false);
   const [profilePictureFileId, setProfilePictureFileId] = useState(null);
+  const [devMode, setDevMode] = useState(false);
+  const [devModalVisible, setDevModalVisible] = useState(false);
+  const cloudTasks = useTasks();
+  const localTasks = useLocalTasks();
+  const isCloud = !!user; // true if logged in
+  const tasksApi = isCloud ? cloudTasks : localTasks;
 
   useEffect(() => {
     const fetchProfile = async () => {
@@ -188,6 +200,90 @@ const Profile = () => {
     return imageUrl;
   };
 
+  const handleDevMode = () => {
+    Alert.prompt(
+      "Enter Dev Password",
+      undefined,
+      [
+        {
+          text: "Cancel",
+          style: "cancel",
+        },
+        {
+          text: "OK",
+          onPress: (input) => {
+            if (input === DEV_MODE_PASSWORD) {
+              setDevMode(true);
+              setDevModalVisible(true);
+            } else {
+              Alert.alert("Incorrect Password", "Try again.");
+            }
+          },
+        },
+      ],
+      "secure-text"
+    );
+  };
+
+  // Dev Actions
+  const handleResetChest = async () => {
+    await AsyncStorage.removeItem(DAILY_CHEST_KEY);
+    await AsyncStorage.setItem("DAILY_CHEST_RESET", Date.now().toString());
+    Alert.alert("Chest Cooldown Reset", "You can now open the daily chest.");
+  };
+
+  const handleSetLevel = () => {
+    Alert.prompt(
+      "Set Level",
+      "Enter new level (number):",
+      [
+        { text: "Cancel", style: "cancel" },
+        {
+          text: "OK",
+          onPress: async (input) => {
+            const newLevel = parseInt(input, 10);
+            if (!isNaN(newLevel) && user?.$id) {
+              const DATABASE_ID = Constants.expoConfig.extra.DATABASE_ID;
+              const COLLECTION_ID = Constants.expoConfig.extra.COLLECTION_ID;
+              await databases.updateDocument(
+                DATABASE_ID,
+                COLLECTION_ID,
+                user.$id,
+                { level: newLevel }
+              );
+              Alert.alert("Level Updated", `Level set to ${newLevel}`);
+            } else {
+              Alert.alert("Invalid Input", "Please enter a valid number.");
+            }
+          },
+        },
+      ],
+      "plain-text"
+    );
+  };
+
+  const handleAddMockTask = async () => {
+    await tasksApi.createTask({
+      title: "Dev Mock Task",
+      description: "This is a dev mode mock task.",
+      difficulty: "easy",
+      completed: false,
+      completedAt: null,
+    });
+    Alert.alert("Mock Task Added");
+  };
+
+  const handleClearTasks = async () => {
+    if (isCloud) {
+      for (const t of tasksApi.tasks) {
+        await tasksApi.deleteTask(t.$id);
+      }
+    } else {
+      await tasksApi.clearLocalTasks();
+    }
+    Alert.alert("All Tasks Cleared");
+  };
+
   return (
     <View style={styles.container}>
       <ScrollView
@@ -262,6 +358,16 @@ const Profile = () => {
             <Ionicons name="trash-outline" size={20} color="#fff" />
             <Text style={styles.actionButtonText}>Delete Account</Text>
           </TouchableOpacity>
+          {/* Dev Mode Button */}
+          <TouchableOpacity
+            style={[styles.actionButton, { backgroundColor: "#ffd700" }]}
+            onPress={handleDevMode}
+          >
+            <Ionicons name="bug-outline" size={20} color="#2c2137" />
+            <Text style={[styles.actionButtonText, { color: "#2c2137" }]}>
+              Dev Mode
+            </Text>
+          </TouchableOpacity>
         </View>
       </ScrollView>
 
@@ -300,6 +406,51 @@ const Profile = () => {
                 </Text>
               </TouchableOpacity>
             </View>
+          </View>
+        </View>
+      </Modal>
+      {/* Dev Mode Modal */}
+      <Modal
+        visible={devModalVisible}
+        animationType="slide"
+        transparent
+        onRequestClose={() => setDevModalVisible(false)}
+      >
+        <View style={styles.devModalOverlay}>
+          <View style={styles.devModalContent}>
+            <Text style={styles.devModalTitle}>Dev Mode Actions</Text>
+            <TouchableOpacity
+              style={styles.devModalBtn}
+              onPress={handleResetChest}
+            >
+              <Text style={styles.devModalBtnText}>
+                Reset Daily Chest Cooldown
+              </Text>
+            </TouchableOpacity>
+            <TouchableOpacity
+              style={styles.devModalBtn}
+              onPress={handleSetLevel}
+            >
+              <Text style={styles.devModalBtnText}>Set Level</Text>
+            </TouchableOpacity>
+            <TouchableOpacity
+              style={styles.devModalBtn}
+              onPress={handleAddMockTask}
+            >
+              <Text style={styles.devModalBtnText}>Add Mock Task</Text>
+            </TouchableOpacity>
+            <TouchableOpacity
+              style={styles.devModalBtn}
+              onPress={handleClearTasks}
+            >
+              <Text style={styles.devModalBtnText}>Clear All Tasks</Text>
+            </TouchableOpacity>
+            <TouchableOpacity
+              style={styles.devModalClose}
+              onPress={() => setDevModalVisible(false)}
+            >
+              <Text style={styles.devModalCloseText}>Close</Text>
+            </TouchableOpacity>
           </View>
         </View>
       </Modal>
@@ -447,6 +598,60 @@ const styles = StyleSheet.create({
   },
   saveBtnText: {
     color: "#fff",
+    fontWeight: "600",
+    fontSize: 16,
+  },
+  devModalOverlay: {
+    flex: 1,
+    backgroundColor: "rgba(0,0,0,0.5)",
+    justifyContent: "center",
+    alignItems: "center",
+  },
+  devModalContent: {
+    backgroundColor: Colors.dark.card,
+    borderRadius: 16,
+    padding: 24,
+    width: "90%",
+    maxWidth: 400,
+    alignItems: "stretch",
+    shadowColor: "#000",
+    shadowOffset: { width: 0, height: 8 },
+    shadowOpacity: 0.2,
+    shadowRadius: 16,
+    elevation: 8,
+  },
+  devModalTitle: {
+    fontSize: 20,
+    fontWeight: "700",
+    color: Colors.dark.accent,
+    marginBottom: 16,
+    textAlign: "center",
+  },
+  devModalBtn: {
+    backgroundColor: Colors.dark.accent,
+    borderRadius: 12,
+    padding: 16,
+    marginBottom: 12,
+    alignItems: "center",
+    shadowColor: "#000",
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.1,
+    shadowRadius: 4,
+    elevation: 2,
+  },
+  devModalBtnText: {
+    color: "#fff",
+    fontSize: 16,
+    fontWeight: "600",
+  },
+  devModalClose: {
+    backgroundColor: Colors.dark.border,
+    borderRadius: 12,
+    padding: 16,
+    alignItems: "center",
+  },
+  devModalCloseText: {
+    color: Colors.dark.text,
     fontWeight: "600",
     fontSize: 16,
   },

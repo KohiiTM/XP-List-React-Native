@@ -134,6 +134,18 @@ const Home = () => {
     checkCooldown();
   }, []);
 
+  useEffect(() => {
+    const checkReset = async () => {
+      const reset = await AsyncStorage.getItem("DAILY_CHEST_RESET");
+      if (reset) {
+        setChestCooldown(0);
+        await AsyncStorage.removeItem("DAILY_CHEST_RESET");
+      }
+    };
+    const interval = setInterval(checkReset, 1000);
+    return () => clearInterval(interval);
+  }, []);
+
   const handleComplete = async (task) => {
     try {
       const wasCompleted = task.completed;
