@@ -15,7 +15,7 @@ import { useUser } from "@hooks/useUser";
 
 import ThemedButton from "@components/ThemedButton";
 import ThemedView from "@components/ThemedView";
-import Spacer from "@components/spacer";
+import Spacer from "@components/Spacer";
 
 const Login = () => {
   const [email, setEmail] = useState("");

@@ -1,0 +1,26 @@
+[
+  {
+    "id": 1,
+    "name": "Ancient Parchment",
+    "description": "A mysterious parchment with faded runes.",
+    "quantity": 2,
+    "image": "parchment.png",
+    "category": "Key Item"
+  },
+  {
+    "id": 2,
+    "name": "Golden Icon",
+    "description": "A shiny golden icon, symbol of achievement.",
+    "quantity": 1,
+    "image": "icon.png",
+    "category": "Equipment"
+  },
+  {
+    "id": 3,
+    "name": "Explorer's Badge",
+    "description": "Awarded for discovering new lands.",
+    "quantity": 3,
+    "image": "icon.png",
+    "category": "Consumable"
+  }
+]

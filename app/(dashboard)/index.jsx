@@ -10,6 +10,7 @@ import {
   ScrollView,
   ImageBackground,
   Alert,
+  Modal,
 } from "react-native";
 
 import { Link, useRouter, usePathname } from "expo-router";
@@ -18,7 +19,7 @@ import Parchment from "@assets/images/parchment.png";
 import { useUser } from "@hooks/useUser";
 import { useLeveling } from "@hooks/useLeveling";
 import Constants from "expo-constants";
-import { databases } from "@constants/appwrite";
+import { databases } from "@lib/appwrite";
 import { useTasks } from "@hooks/useTasks";
 import { useLocalTasks } from "@hooks/useLocalTasks";
 import { Ionicons } from "@expo/vector-icons";
@@ -57,6 +58,8 @@ const Home = () => {
   const pathname = usePathname();
   const colorScheme = useColorScheme();
   const theme = Colors[colorScheme] ?? Colors.light;
+  const [taskDetailModalVisible, setTaskDetailModalVisible] = useState(false);
+  const [selectedTask, setSelectedTask] = useState(null);
 
   useEffect(() => {
     fetchTasks();
@@ -121,6 +124,15 @@ const Home = () => {
     }
   };
 
+  const handleShowTaskDetail = (task) => {
+    setSelectedTask(task);
+    setTaskDetailModalVisible(true);
+  };
+  const handleCloseTaskDetail = () => {
+    setTaskDetailModalVisible(false);
+    setSelectedTask(null);
+  };
+
   const difficultyColors = {
     easy: "#8bc34a",
     medium: "#ff9800",
@@ -128,40 +140,44 @@ const Home = () => {
   };
 
   const renderTask = ({ item }) => (
-    <View style={[styles.taskCard, item.completed && styles.completedTaskCard]}>
-      <TouchableOpacity
-        style={styles.checkboxContainer}
-        onPress={() => handleComplete(item)}
+    <TouchableOpacity onPress={() => handleShowTaskDetail(item)}>
+      <View
+        style={[styles.taskCard, item.completed && styles.completedTaskCard]}
       >
-        <View
-          style={[styles.checkbox, item.completed && styles.checkboxChecked]}
+        <TouchableOpacity
+          style={styles.checkboxContainer}
+          onPress={() => handleComplete(item)}
         >
-          {item.completed && (
-            <Ionicons name="checkmark" size={14} color="#fff" />
-          )}
-        </View>
-      </TouchableOpacity>
-
-      <View style={styles.taskContent}>
-        <View style={styles.taskHeader}>
           <View
-            style={[
-              styles.difficultyBadge,
-              { backgroundColor: difficultyColors[item.difficulty] },
-            ]}
+            style={[styles.checkbox, item.completed && styles.checkboxChecked]}
           >
-            <Text style={styles.difficultyText}>{item.difficulty}</Text>
+            {item.completed && (
+              <Ionicons name="checkmark" size={14} color="#fff" />
+            )}
           </View>
-          <TouchableOpacity
-            onPress={() => deleteTask(item.$id)}
-            style={styles.deleteButton}
-          >
-            <Ionicons name="close" size={16} color="#d32f2f" />
-          </TouchableOpacity>
+        </TouchableOpacity>
+
+        <View style={styles.taskContent}>
+          <View style={styles.taskHeader}>
+            <View
+              style={[
+                styles.difficultyBadge,
+                { backgroundColor: difficultyColors[item.difficulty] },
+              ]}
+            >
+              <Text style={styles.difficultyText}>{item.difficulty}</Text>
+            </View>
+            <TouchableOpacity
+              onPress={() => deleteTask(item.$id)}
+              style={styles.deleteButton}
+            >
+              <Ionicons name="close" size={16} color="#d32f2f" />
+            </TouchableOpacity>
+          </View>
+          <Text style={styles.taskText}>{item.title}</Text>
         </View>
-        <Text style={styles.taskText}>{item.title}</Text>
       </View>
-    </View>
+    </TouchableOpacity>
   );
 
   const getProfilePictureUrl = () => {
@@ -245,6 +261,36 @@ const Home = () => {
           )}
         </View>
       </ScrollView>
+      <Modal
+        visible={taskDetailModalVisible}
+        animationType="fade"
+        transparent
+        onRequestClose={handleCloseTaskDetail}
+      >
+        <TouchableOpacity
+          style={styles.modalOverlay}
+          activeOpacity={1}
+          onPress={handleCloseTaskDetail}
+        >
+          <TouchableOpacity
+            style={styles.modalContent}
+            activeOpacity={1}
+            onPress={(e) => e.stopPropagation()}
+          >
+            <Text style={styles.modalTitle}>Task Details</Text>
+            <Text style={styles.taskTitle}>{selectedTask?.title}</Text>
+            <Text style={styles.taskDesc}>
+              {selectedTask?.description || "No description."}
+            </Text>
+            <TouchableOpacity
+              style={styles.closeBtn}
+              onPress={handleCloseTaskDetail}
+            >
+              <Text style={styles.closeBtnText}>Close</Text>
+            </TouchableOpacity>
+          </TouchableOpacity>
+        </TouchableOpacity>
+      </Modal>
     </ThemedView>
   );
 };
@@ -437,5 +483,47 @@ const styles = StyleSheet.create({
   },
   navIconActive: {
     backgroundColor: "#3a2f4c",
+  },
+  modalOverlay: {
+    flex: 1,
+    justifyContent: "center",
+    alignItems: "center",
+    backgroundColor: "rgba(0, 0, 0, 0.5)",
+  },
+  modalContent: {
+    backgroundColor: "#3a2f4c",
+    borderRadius: 10,
+    padding: 20,
+    width: "80%",
+    alignItems: "center",
+  },
+  modalTitle: {
+    color: "#ffd700",
+    fontSize: 24,
+    fontWeight: "700",
+    marginBottom: 15,
+  },
+  taskTitle: {
+    color: "#fff",
+    fontSize: 20,
+    fontWeight: "600",
+    marginBottom: 10,
+  },
+  taskDesc: {
+    color: "#8b7b9e",
+    fontSize: 16,
+    marginBottom: 20,
+    textAlign: "center",
+  },
+  closeBtn: {
+    backgroundColor: "#ffd700",
+    paddingVertical: 10,
+    paddingHorizontal: 20,
+    borderRadius: 8,
+  },
+  closeBtnText: {
+    color: "#2c2137",
+    fontSize: 18,
+    fontWeight: "700",
   },
 });

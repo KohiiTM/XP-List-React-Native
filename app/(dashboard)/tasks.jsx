@@ -49,7 +49,9 @@ const Tasks = () => {
   });
   const [formError, setFormError] = useState("");
   const [submitting, setSubmitting] = useState(false);
-  // Remove showCompleted state and toggle logic
+
+  const [taskDetailModalVisible, setTaskDetailModalVisible] = useState(false);
+  const [selectedTask, setSelectedTask] = useState(null);
 
   useEffect(() => {
     fetchTasks();
@@ -141,6 +143,15 @@ const Tasks = () => {
     }
   };
 
+  const handleShowTaskDetail = (task) => {
+    setSelectedTask(task);
+    setTaskDetailModalVisible(true);
+  };
+  const handleCloseTaskDetail = () => {
+    setTaskDetailModalVisible(false);
+    setSelectedTask(null);
+  };
+
   const difficultyColors = {
     easy: Colors.dark.easy,
     medium: Colors.dark.medium,
@@ -148,40 +159,44 @@ const Tasks = () => {
   };
 
   const renderTask = ({ item }) => (
-    <View style={[styles.taskCard, item.completed && styles.completedTaskCard]}>
-      <TouchableOpacity
-        style={styles.checkboxContainer}
-        onPress={() => handleComplete(item)}
+    <TouchableOpacity onPress={() => handleShowTaskDetail(item)}>
+      <View
+        style={[styles.taskCard, item.completed && styles.completedTaskCard]}
       >
-        <View
-          style={[styles.checkbox, item.completed && styles.checkboxChecked]}
+        <TouchableOpacity
+          style={styles.checkboxContainer}
+          onPress={() => handleComplete(item)}
         >
-          {item.completed && (
-            <Ionicons name="checkmark" size={14} color="#fff" />
-          )}
-        </View>
-      </TouchableOpacity>
-
-      <View style={styles.taskContent}>
-        <View style={styles.taskHeader}>
           <View
-            style={[
-              styles.difficultyBadge,
-              { backgroundColor: difficultyColors[item.difficulty] },
-            ]}
+            style={[styles.checkbox, item.completed && styles.checkboxChecked]}
           >
-            <Text style={styles.difficultyText}>{item.difficulty}</Text>
+            {item.completed && (
+              <Ionicons name="checkmark" size={14} color="#fff" />
+            )}
           </View>
-          <TouchableOpacity
-            onPress={() => handleDelete(item.$id)}
-            style={styles.deleteButton}
-          >
-            <Ionicons name="close" size={16} color="#d32f2f" />
-          </TouchableOpacity>
+        </TouchableOpacity>
+
+        <View style={styles.taskContent}>
+          <View style={styles.taskHeader}>
+            <View
+              style={[
+                styles.difficultyBadge,
+                { backgroundColor: difficultyColors[item.difficulty] },
+              ]}
+            >
+              <Text style={styles.difficultyText}>{item.difficulty}</Text>
+            </View>
+            <TouchableOpacity
+              onPress={() => handleDelete(item.$id)}
+              style={styles.deleteButton}
+            >
+              <Ionicons name="close" size={16} color="#d32f2f" />
+            </TouchableOpacity>
+          </View>
+          <Text style={styles.taskText}>{item.title}</Text>
         </View>
-        <Text style={styles.taskText}>{item.title}</Text>
       </View>
-    </View>
+    </TouchableOpacity>
   );
 
   const activeTasks = tasks ? tasks.filter((task) => !task.completed) : [];
@@ -304,6 +319,36 @@ const Tasks = () => {
             </View>
           </View>
         </View>
+      </Modal>
+      <Modal
+        visible={taskDetailModalVisible}
+        animationType="fade"
+        transparent
+        onRequestClose={handleCloseTaskDetail}
+      >
+        <TouchableOpacity
+          style={styles.modalOverlay}
+          activeOpacity={1}
+          onPress={handleCloseTaskDetail}
+        >
+          <TouchableOpacity
+            style={styles.modalContent}
+            activeOpacity={1}
+            onPress={(e) => e.stopPropagation()}
+          >
+            <Text style={styles.modalTitle}>Task Details</Text>
+            <Text style={styles.taskTitle}>{selectedTask?.title}</Text>
+            <Text style={styles.taskDesc}>
+              {selectedTask?.description || "No description."}
+            </Text>
+            <TouchableOpacity
+              style={styles.closeBtn}
+              onPress={handleCloseTaskDetail}
+            >
+              <Text style={styles.closeBtnText}>Close</Text>
+            </TouchableOpacity>
+          </TouchableOpacity>
+        </TouchableOpacity>
       </Modal>
     </ThemedView>
   );
@@ -602,6 +647,17 @@ const styles = StyleSheet.create({
   },
   createBtnText: {
     color: "#fff",
+    fontWeight: "bold",
+  },
+  closeBtn: {
+    marginTop: 16,
+    paddingVertical: 8,
+    paddingHorizontal: 18,
+    borderRadius: 8,
+    backgroundColor: Colors.dark.border,
+  },
+  closeBtnText: {
+    color: Colors.dark.text,
     fontWeight: "bold",
   },
   // Remove completedTaskDim and toggle styles
