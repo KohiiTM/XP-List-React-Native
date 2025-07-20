@@ -15,6 +15,37 @@ import { ID } from "react-native-appwrite";
 import Constants from "expo-constants";
 import * as FileSystem from "expo-file-system";
 
+export async function uploadImageToAppwrite(imagePickerAsset) {
+  const STORAGE_BUCKET_ID = Constants.expoConfig.extra.STORAGE_BUCKET_ID;
+  if (!STORAGE_BUCKET_ID) {
+    throw new Error("Storage bucket ID not configured");
+  }
+  const { uri, fileName, type, fileSize } = imagePickerAsset;
+  const fileInfo = await FileSystem.getInfoAsync(uri);
+  if (!fileInfo.exists) {
+    throw new Error("File does not exist");
+  }
+  const fileToUpload = {
+    name: fileName || uri.split("/").pop(),
+    type: type || "image/jpeg",
+    size: fileSize || fileInfo.size,
+    uri: uri,
+  };
+  const fileId = ID.unique();
+  const uploadedFile = await storage.createFile(
+    STORAGE_BUCKET_ID,
+    fileId,
+    fileToUpload
+  );
+  if (uploadedFile && uploadedFile.$id) {
+    // Construct the public URL
+    const url = `https://nyc.cloud.appwrite.io/v1/storage/buckets/${STORAGE_BUCKET_ID}/files/${uploadedFile.$id}/view?project=686b296f003243270240`;
+    return url;
+  } else {
+    throw new Error("Upload failed - invalid response");
+  }
+}
+
 const ProfilePicturePicker = ({
   currentImageUrl,
   onImageUpdate,

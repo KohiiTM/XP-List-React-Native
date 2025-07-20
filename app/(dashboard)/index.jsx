@@ -27,7 +27,7 @@ import { useColorScheme } from "react-native";
 import LevelDisplay from "@components/LevelDisplay";
 import ProfilePicturePicker from "@components/ProfilePicturePicker";
 import AsyncStorage from "@react-native-async-storage/async-storage";
-import itemsData from "../../assets/items.json";
+import useInventory from "@hooks/useInventory";
 
 import { Colors } from "@constants/Colors";
 
@@ -58,6 +58,7 @@ const Home = () => {
   // Use appropriate tasks hook based on authentication status
   const cloudTasks = useTasks();
   const localTasks = useLocalTasks();
+  const { items: inventoryItems, addItem, fetchItems } = useInventory();
 
   const {
     tasks,
@@ -194,13 +195,37 @@ const Home = () => {
       );
       return;
     }
-    // Pick a random item
-    const items = itemsData;
-    const reward = items[Math.floor(Math.random() * items.length)];
+    const possibleRewards = [
+      {
+        name: "Ancient Parchment",
+        description: "A mysterious parchment with faded runes.",
+        image: "parchment.png",
+        category: "Key Item",
+        quantity: 1,
+      },
+      {
+        name: "Golden Icon",
+        description: "A shiny golden icon, symbol of achievement.",
+        image: "icon.png",
+        category: "Equipment",
+        quantity: 1,
+      },
+      {
+        name: "Explorer's Badge",
+        description: "Awarded for discovering new lands.",
+        image: "icon.png",
+        category: "Consumable",
+        quantity: 1,
+      },
+    ];
+    const reward =
+      possibleRewards[Math.floor(Math.random() * possibleRewards.length)];
+    await addItem(reward);
     setChestReward(reward);
     setChestModalVisible(true);
     await AsyncStorage.setItem(DAILY_CHEST_KEY, Date.now().toString());
     setChestCooldown(CHEST_COOLDOWN);
+    fetchItems();
   };
 
   // Add a timer to update cooldown every second

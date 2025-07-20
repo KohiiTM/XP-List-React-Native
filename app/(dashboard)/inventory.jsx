@@ -9,11 +9,15 @@ import {
   Dimensions,
   Modal,
   useWindowDimensions,
+  TextInput,
 } from "react-native";
 import { Link } from "expo-router";
 import { Colors } from "@constants/Colors";
 import ThemedView from "@components/ThemedView";
-import itemsData from "../../assets/items.json";
+import useInventory from "@hooks/useInventory";
+import Constants from "expo-constants";
+import * as ImagePicker from "expo-image-picker";
+import { uploadImageToAppwrite } from "@components/ProfilePicturePicker";
 
 const CATEGORIES = ["All", "Consumable", "Key Item", "Equipment"];
 const NUM_SLOTS = 12;
@@ -23,14 +27,19 @@ const SLOT_SIZE = Math.floor(
 );
 const GRID_MAX_HEIGHT = Math.floor(Dimensions.get("window").height * 0.5);
 
-const getImage = (img) => {
-  if (img === "parchment.png")
+const getImageSource = (item) => {
+  if (!item) return null;
+  if (item.imageUrl && item.imageUrl.startsWith("http")) {
+    return { uri: item.imageUrl };
+  }
+  // fallback for legacy items
+  if (item.image === "parchment.png")
     return require("../../assets/images/parchment.png");
   return require("../../assets/images/icon.png");
 };
 
 const Inventory = () => {
-  const [items, setItems] = useState([]);
+  const { items, loading, error, fetchItems, addItem } = useInventory();
   const [selectedCategory, setSelectedCategory] = useState("All");
   const [selectedSlot, setSelectedSlot] = useState(null);
   const [modalVisible, setModalVisible] = useState(false);
@@ -38,8 +47,8 @@ const Inventory = () => {
   const { height: windowHeight } = useWindowDimensions();
 
   useEffect(() => {
-    setItems(itemsData);
-  }, []);
+    fetchItems();
+  }, [fetchItems]);
 
   const filteredItems =
     selectedCategory === "All"
@@ -104,7 +113,7 @@ const Inventory = () => {
       {item ? (
         <>
           <Image
-            source={getImage(item.image)}
+            source={getImageSource(item)}
             style={styles.slotImg}
             resizeMode="contain"
           />
@@ -148,7 +157,7 @@ const Inventory = () => {
             {modalItem && (
               <>
                 <Image
-                  source={getImage(modalItem.image)}
+                  source={getImageSource(modalItem)}
                   style={styles.modalImg}
                   resizeMode="contain"
                 />

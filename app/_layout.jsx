@@ -5,6 +5,7 @@ import { StatusBar } from "expo-status-bar";
 import { UserProvider } from "@contexts/UserContext";
 import { LevelsProvider } from "@contexts/LevelsContext";
 import { TasksProvider } from "@contexts/TasksContext";
+import { InventoryProvider } from "@contexts/InventoryContext";
 
 const RootLayout = () => {
   const colorScheme = useColorScheme();
@@ -12,21 +13,26 @@ const RootLayout = () => {
 
   return (
     <UserProvider>
-      <LevelsProvider>
-        <TasksProvider>
-          <StatusBar style="light" />
-          <Stack
-            screenOptions={{
-              headerStyle: { backgroundColor: theme.secondary },
-              headerTintColor: theme.accent,
-            }}
-          >
-            <Stack.Screen name="index" options={{ title: "Home" }} />
-            <Stack.Screen name="(dashboard)" options={{ headerShown: false }} />
-            <Stack.Screen name="(auth)" options={{ headerShown: false }} />
-          </Stack>
-        </TasksProvider>
-      </LevelsProvider>
+      <InventoryProvider>
+        <LevelsProvider>
+          <TasksProvider>
+            <StatusBar style="light" />
+            <Stack
+              screenOptions={{
+                headerStyle: { backgroundColor: theme.secondary },
+                headerTintColor: theme.accent,
+              }}
+            >
+              <Stack.Screen name="index" options={{ title: "Home" }} />
+              <Stack.Screen
+                name="(dashboard)"
+                options={{ headerShown: false }}
+              />
+              <Stack.Screen name="(auth)" options={{ headerShown: false }} />
+            </Stack>
+          </TasksProvider>
+        </LevelsProvider>
+      </InventoryProvider>
     </UserProvider>
   );
 };
