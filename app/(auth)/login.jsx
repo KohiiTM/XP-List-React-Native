@@ -8,6 +8,7 @@ import {
   TextInput,
   TouchableOpacity,
   ActivityIndicator,
+  Linking,
 } from "react-native";
 import { Link, useRouter } from "expo-router";
 import { Colors } from "@constants/Colors";
@@ -67,6 +68,17 @@ const Login = () => {
         <Link href="/signup" style={[styles.link, { marginTop: 100 }]}>
           Don't have an account? Sign up
         </Link>
+        <View style={{ alignItems: "center", marginTop: 24 }}>
+          <TouchableOpacity
+            onPress={() =>
+              Linking.openURL("https://kohiitm.github.io/xplist-privacy-policy/")
+            }
+          >
+            <Text style={{ color: "#fff", textDecorationLine: "underline" }}>
+              Privacy Policy
+            </Text>
+          </TouchableOpacity>
+        </View>
       </ThemedView>
     </TouchableWithoutFeedback>
   );

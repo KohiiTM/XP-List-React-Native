@@ -9,6 +9,7 @@ import {
   TextInput,
   Alert,
   ScrollView,
+  Linking,
 } from "react-native";
 import { useRouter } from "expo-router";
 import { useUser } from "@hooks/useUser";
@@ -454,6 +455,17 @@ const Profile = () => {
           </View>
         </View>
       </Modal>
+      <View style={{ alignItems: "center", marginTop: 24 }}>
+        <TouchableOpacity
+          onPress={() =>
+            Linking.openURL("https://kohiitm.github.io/xplist-privacy-policy/")
+          }
+        >
+          <Text style={{ color: "#fff", textDecorationLine: "underline" }}>
+            Privacy Policy
+          </Text>
+        </TouchableOpacity>
+      </View>
     </View>
   );
 };

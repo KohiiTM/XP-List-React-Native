@@ -18,7 +18,6 @@ export class LevelingService {
     this.userId = userId;
   }
 
-
   async getLevelInfo() {
     try {
       const response = await databases.getDocument(
@@ -69,7 +68,6 @@ export class LevelingService {
         lastCompletionDate: null,
       };
     } catch (error) {
-      console.error("Failed to create level document:", error);
       return {
         level: initialLevelInfo.level,
         totalXP: initialLevelInfo.totalXP,

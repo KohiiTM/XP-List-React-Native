@@ -157,9 +157,7 @@ const Home = () => {
 
       if (!wasCompleted && user && awardXPForTask) {
         try {
-          console.log("Awarding XP for task:", task.difficulty);
           const result = await awardXPForTask(task.difficulty);
-          console.log("XP awarded successfully:", result);
           Alert.alert(
             "Task Completed!",
             result.leveledUp
@@ -167,12 +165,11 @@ const Home = () => {
               : `+${result.xpReward} XP earned!`
           );
         } catch (xpError) {
-          console.log("XP award failed:", xpError.message);
           Alert.alert("XP Award Failed", xpError.message);
         }
       }
     } catch (err) {
-      console.log("Task completion failed:", err.message);
+      Alert.alert("Task completion failed", err.message);
     }
   };
 
