@@ -1,4 +1,4 @@
-import React, { useContext, useEffect, useState } from "react";
+import React, { useCallback, useContext, useEffect, useState } from "react";
 import {
   StyleSheet,
   View,
@@ -24,6 +24,8 @@ import ProfilePicturePicker from "@components/ProfilePicturePicker";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { useTasks } from "@hooks/useTasks";
 import { useLocalTasks } from "@hooks/useLocalTasks";
+import { usePullToRefresh } from "@hooks/usePullToRefresh";
+import PullToRefresh from "@components/PullToRefresh";
 
 import ProfileIcon from "@assets/images/icon.png";
 
@@ -47,6 +49,18 @@ const Profile = () => {
   const localTasks = useLocalTasks();
   const isCloud = !!user; // true if logged in
   const tasksApi = isCloud ? cloudTasks : localTasks;
+
+  const { refreshing, onRefresh } = usePullToRefresh(async () => {
+    try {
+      if (isCloud) {
+        await cloudTasks.fetchTasks();
+      } else {
+        await localTasks.fetchTasks();
+      }
+    } catch (error) {
+      console.error("Error refreshing profile data:", error);
+    }
+  });
 
   useEffect(() => {
     const fetchProfile = async () => {
@@ -290,6 +304,9 @@ const Profile = () => {
       <ScrollView
         style={styles.scrollView}
         showsVerticalScrollIndicator={false}
+        refreshControl={
+          <PullToRefresh refreshing={refreshing} onRefresh={onRefresh} />
+        }
       >
         <View style={styles.profileHeader}>
           <View style={styles.avatarContainer}>

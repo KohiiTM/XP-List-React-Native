@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useCallback } from "react";
 import {
   StyleSheet,
   Text,
@@ -15,6 +15,7 @@ import {
 
 import { Link, useRouter, usePathname } from "expo-router";
 import Logo from "@assets/images/icon.png";
+import Unsolved_Cube from "@assets/images/unsolved_cube.png";
 import Parchment from "@assets/images/parchment.png";
 import { useUser } from "@hooks/useUser";
 import { useLeveling } from "@hooks/useLeveling";
@@ -32,6 +33,8 @@ import useInventory from "@hooks/useInventory";
 import { Colors } from "@constants/Colors";
 
 import ThemedView from "@components/ThemedView";
+import PullToRefresh from "@components/PullToRefresh";
+import { usePullToRefresh } from "@hooks/usePullToRefresh";
 
 const DAILY_CHEST_KEY = "dailyChestLastOpened";
 const CHEST_COOLDOWN = 24 * 60 * 60 * 1000; // 24 hours in ms
@@ -47,6 +50,12 @@ function formatCooldown(ms) {
     .padStart(2, "0")}:${seconds.toString().padStart(2, "0")}`;
 }
 
+const itemImages = {
+  "icon.png": Logo,
+  "unsolved_cube.png": Unsolved_Cube,
+  "parchment.png": Parchment,
+};
+
 const Home = () => {
   const { user } = useUser();
   const {
@@ -56,19 +65,11 @@ const Home = () => {
     awardXPForTask,
   } = useLeveling();
   // Use appropriate tasks hook based on authentication status
-  const cloudTasks = useTasks();
-  const localTasks = useLocalTasks();
+  const tasksHook = user ? useTasks() : useLocalTasks();
+  const { tasks, loading, error, fetchTasks } = tasksHook;
+  const { refreshing, onRefresh } = usePullToRefresh(fetchTasks);
   const { items: inventoryItems, addItem, fetchItems } = useInventory();
 
-  const {
-    tasks,
-    loading: tasksLoading,
-    error: tasksError,
-    fetchTasks,
-    updateTask,
-    deleteTask,
-    clearLocalTasks,
-  } = user ? cloudTasks : localTasks;
   const [profile, setProfile] = useState(null);
   const [profileLoading, setProfileLoading] = useState(true);
   const [profileError, setProfileError] = useState(null);
@@ -88,10 +89,10 @@ const Home = () => {
 
   // Clear local tasks when user signs in
   useEffect(() => {
-    if (user && clearLocalTasks) {
-      clearLocalTasks();
+    if (user && tasksHook.clearLocalTasks) {
+      tasksHook.clearLocalTasks();
     }
-  }, [user, clearLocalTasks]);
+  }, [user, tasksHook.clearLocalTasks]);
 
   useEffect(() => {
     const fetchProfile = async () => {
@@ -150,7 +151,7 @@ const Home = () => {
   const handleComplete = async (task) => {
     try {
       const wasCompleted = task.completed;
-      await updateTask(task.$id, {
+      await tasksHook.updateTask(task.$id, {
         completed: !task.completed,
         completedAt: !task.completed ? new Date().toISOString() : null,
       });
@@ -161,7 +162,7 @@ const Home = () => {
           Alert.alert(
             "Task Completed!",
             result.leveledUp
-              ? "🎉 Congratulations on leveling up!"
+              ? " Congratulations on leveling up!"
               : `+${result.xpReward} XP earned!`
           );
         } catch (xpError) {
@@ -211,6 +212,13 @@ const Home = () => {
         name: "Explorer's Badge",
         description: "Awarded for discovering new lands.",
         image: "icon.png",
+        category: "Consumable",
+        quantity: 1,
+      },
+      {
+        name: "Unsolved Cube",
+        description: "Looks great on a shelf.",
+        image: "unsolved_cube.png",
         category: "Consumable",
         quantity: 1,
       },
@@ -270,7 +278,7 @@ const Home = () => {
               <Text style={styles.difficultyText}>{item.difficulty}</Text>
             </View>
             <TouchableOpacity
-              onPress={() => deleteTask(item.$id)}
+              onPress={() => tasksHook.deleteTask(item.$id)}
               style={styles.deleteButton}
             >
               <Ionicons name="close" size={16} color="#d32f2f" />
@@ -289,7 +297,10 @@ const Home = () => {
   };
 
   return (
-    <ThemedView style={styles.container} safe={true}>
+    <ThemedView 
+      style={styles.container} 
+      safe={true}
+    >
       {/* Daily Chest Button */}
       <TouchableOpacity
         style={styles.chestButton}
@@ -337,7 +348,13 @@ const Home = () => {
       )}
       <ScrollView
         style={styles.scrollView}
-        showsVerticalScrollIndicator={false}
+        contentContainerStyle={styles.scrollContent}
+        refreshControl={
+          <PullToRefresh 
+            refreshing={refreshing} 
+            onRefresh={onRefresh} 
+          />
+        }
       >
         <View style={styles.header} />
         {/* Tasks Section */}
@@ -351,13 +368,13 @@ const Home = () => {
             </View>
           </View>
 
-          {tasksLoading ? (
+          {loading ? (
             <View style={styles.loadingContainer}>
               <Text style={styles.loadingText}>Loading tasks...</Text>
             </View>
-          ) : tasksError ? (
+          ) : error ? (
             <View style={styles.errorContainer}>
-              <Text style={styles.errorText}>{tasksError}</Text>
+              <Text style={styles.errorText}>{error}</Text>
             </View>
           ) : (
             <FlatList
@@ -435,11 +452,7 @@ const Home = () => {
                 />
                 <Text style={styles.chestModalTitle}>You received:</Text>
                 <Image
-                  source={
-                    chestReward.image === "parchment.png"
-                      ? require("../../assets/images/parchment.png")
-                      : require("../../assets/images/icon.png")
-                  }
+                  source={itemImages[chestReward.image]}
                   style={styles.chestModalImg}
                   resizeMode="contain"
                 />

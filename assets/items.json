@@ -23,4 +23,12 @@
     "image": "icon.png",
     "category": "Consumable"
   }
+  {
+    "id": 4,
+    "name": "Unsolved Cube",
+    "description": "Awarded for discovering new lands.",
+    "quantity": 1,
+    "image": "unsolved_cube.png",
+    "category": "Consumable"
+  }
 ]

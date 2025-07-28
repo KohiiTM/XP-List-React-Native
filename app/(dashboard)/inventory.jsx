@@ -15,9 +15,15 @@ import { Link } from "expo-router";
 import { Colors } from "@constants/Colors";
 import ThemedView from "@components/ThemedView";
 import useInventory from "@hooks/useInventory";
+import PullToRefresh from "@components/PullToRefresh";
+import { usePullToRefresh } from "@hooks/usePullToRefresh";
 import Constants from "expo-constants";
 import * as ImagePicker from "expo-image-picker";
 import { uploadImageToAppwrite } from "@components/ProfilePicturePicker";
+
+import Parchment from "@assets/images/parchment.png";
+import Icon from "@assets/images/icon.png";
+import Unsolved_Cube from "@assets/images/unsolved_cube.png";
 
 const CATEGORIES = ["All", "Consumable", "Key Item", "Equipment"];
 const NUM_SLOTS = 12;
@@ -27,19 +33,31 @@ const SLOT_SIZE = Math.floor(
 );
 const GRID_MAX_HEIGHT = Math.floor(Dimensions.get("window").height * 0.5);
 
+const localItemImageMap = {
+  "parchment.png": Parchment,
+  "icon.png": Icon,
+  "unsolved_cube.png": Unsolved_Cube,
+};
+
 const getImageSource = (item) => {
-  if (!item) return null;
-  if (item.imageUrl && item.imageUrl.startsWith("http")) {
-    return { uri: item.imageUrl };
+  if (!item) return Icon;
+
+  if (item.image) {
+    const imageKey = Object.keys(localItemImageMap).find(
+      (key) => item.image.endsWith(key) || item.image === key
+    );
+
+    if (imageKey) {
+      return localItemImageMap[imageKey];
+    }
   }
-  // fallback for legacy items
-  if (item.image === "parchment.png")
-    return require("../../assets/images/parchment.png");
-  return require("../../assets/images/icon.png");
+
+  return Icon;
 };
 
 const Inventory = () => {
   const { items, loading, error, fetchItems, addItem } = useInventory();
+  const { refreshing, onRefresh } = usePullToRefresh(fetchItems);
   const [selectedCategory, setSelectedCategory] = useState("All");
   const [selectedSlot, setSelectedSlot] = useState(null);
   const [modalVisible, setModalVisible] = useState(false);
@@ -136,6 +154,9 @@ const Inventory = () => {
           contentContainerStyle={styles.grid}
           scrollEnabled={true}
           showsVerticalScrollIndicator={true}
+          refreshControl={
+            <PullToRefresh refreshing={refreshing} onRefresh={onRefresh} />
+          }
         />
       </View>
       <Modal

@@ -75,13 +75,13 @@ export function InventoryProvider({ children }) {
           );
         } else {
           // Create new item
-          const { image, ...itemDataWithoutImage } = itemData;
+          // --- REMOVED DESTRUCTURING OF 'image' AND NOW INCLUDE IT ---
           await databases.createDocument(
             DATABASE_ID,
             INVENTORY_COLLECTION_ID,
             ID.unique(),
             {
-              ...itemDataWithoutImage,
+              ...itemData, // Now itemData includes the 'image' property
               userId: user.$id,
             },
             [

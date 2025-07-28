@@ -8,7 +8,7 @@ import {
 } from "react-native";
 import { calculateLevelFromXP, calculateTaskXPReward } from "../utils/leveling";
 
-// Helper to group tasks by level at completion
+// Helper to group tasks by the level they helped achieve
 function groupTasksByLevel(tasks) {
   // Only consider completed tasks with a completedAt timestamp
   const completedTasks = tasks
@@ -16,22 +16,36 @@ function groupTasksByLevel(tasks) {
     .sort((a, b) => new Date(a.completedAt) - new Date(b.completedAt));
 
   let xp = 0;
-  let level = 1;
-  let groups = {};
+  let currentLevel = 1;
+  const groups = {};
+  const taskToLevelMap = [];
 
+  // First pass: calculate the XP and level after each task
   completedTasks.forEach((task) => {
-    // Assign the current level before this task's XP is added
-    if (!groups[level]) groups[level] = [];
-    groups[level].push(task);
-    // Add XP for this task
+    // Calculate XP reward for this task
     let reward = task.xpReward;
     if (typeof reward !== "number") {
       reward = calculateTaskXPReward
         ? calculateTaskXPReward(task.difficulty, 0)
         : 0;
     }
-    xp += reward;
-    level = calculateLevelFromXP(xp);
+
+    const newXP = xp + reward;
+    const newLevel = calculateLevelFromXP(newXP);
+
+    if (newLevel > currentLevel) {
+      taskToLevelMap.push({ task, level: newLevel });
+    } else {
+      taskToLevelMap.push({ task, level: currentLevel });
+    }
+
+    xp = newXP;
+    currentLevel = newLevel;
+  });
+
+  taskToLevelMap.forEach(({ task, level }) => {
+    if (!groups[level]) groups[level] = [];
+    groups[level].push(task);
   });
 
   return groups;
