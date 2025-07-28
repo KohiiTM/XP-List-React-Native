@@ -20,6 +20,9 @@ import { useLeveling } from "@hooks/useLeveling";
 import { Ionicons } from "@expo/vector-icons";
 
 import ThemedView from "@components/ThemedView";
+import TaskCard from "@components/tasks/TaskCard";
+import TaskDetailModal from "@components/tasks/TaskDetailModal";
+import TaskCreationModal from "@components/tasks/TaskCreationModal";
 
 const Tasks = () => {
   const { user } = useUser();
@@ -159,44 +162,13 @@ const Tasks = () => {
   };
 
   const renderTask = ({ item }) => (
-    <TouchableOpacity onPress={() => handleShowTaskDetail(item)}>
-      <View
-        style={[styles.taskCard, item.completed && styles.completedTaskCard]}
-      >
-        <TouchableOpacity
-          style={styles.checkboxContainer}
-          onPress={() => handleComplete(item)}
-        >
-          <View
-            style={[styles.checkbox, item.completed && styles.checkboxChecked]}
-          >
-            {item.completed && (
-              <Ionicons name="checkmark" size={14} color="#fff" />
-            )}
-          </View>
-        </TouchableOpacity>
-
-        <View style={styles.taskContent}>
-          <View style={styles.taskHeader}>
-            <View
-              style={[
-                styles.difficultyBadge,
-                { backgroundColor: difficultyColors[item.difficulty] },
-              ]}
-            >
-              <Text style={styles.difficultyText}>{item.difficulty}</Text>
-            </View>
-            <TouchableOpacity
-              onPress={() => handleDelete(item.$id)}
-              style={styles.deleteButton}
-            >
-              <Ionicons name="close" size={16} color="#d32f2f" />
-            </TouchableOpacity>
-          </View>
-          <Text style={styles.taskText}>{item.title}</Text>
-        </View>
-      </View>
-    </TouchableOpacity>
+    <TaskCard
+      item={item}
+      onPress={handleShowTaskDetail}
+      onComplete={handleComplete}
+      onDelete={handleDelete}
+      difficultyColors={difficultyColors}
+    />
   );
 
   const activeTasks = tasks ? tasks.filter((task) => !task.completed) : [];
@@ -248,108 +220,21 @@ const Tasks = () => {
       <TouchableOpacity style={styles.fab} onPress={handleOpenModal}>
         <Text style={styles.fabText}>+</Text>
       </TouchableOpacity>
-      <Modal
+      <TaskCreationModal
         visible={modalVisible}
-        animationType="slide"
-        transparent
-        onRequestClose={handleCloseModal}
-      >
-        <View style={styles.modalOverlay}>
-          <View style={styles.modalContent}>
-            <Text style={styles.modalTitle}>Create Task</Text>
-            <TextInput
-              style={styles.input}
-              placeholder="Title"
-              value={form.title}
-              onChangeText={(text) => handleFormChange("title", text)}
-              placeholderTextColor={Colors.dark.textSecondary}
-            />
-            <TextInput
-              style={styles.input}
-              placeholder="Description (optional)"
-              value={form.description}
-              onChangeText={(text) => handleFormChange("description", text)}
-              placeholderTextColor={Colors.dark.textSecondary}
-            />
-            <View style={styles.row}>
-              <Text style={styles.label}>Difficulty:</Text>
-              {["easy", "medium", "hard"].map((level) => (
-                <Pressable
-                  key={level}
-                  style={[
-                    styles.diffBtn,
-                    form.difficulty === level && {
-                      backgroundColor: difficultyColors[level],
-                      borderColor: difficultyColors[level],
-                    },
-                  ]}
-                  onPress={() => handleFormChange("difficulty", level)}
-                >
-                  <Text
-                    style={[
-                      styles.diffBtnText,
-                      form.difficulty === level && { color: "#fff" },
-                    ]}
-                  >
-                    {level.charAt(0).toUpperCase() + level.slice(1)}
-                  </Text>
-                </Pressable>
-              ))}
-            </View>
-            {formError ? (
-              <Text style={styles.formError}>{formError}</Text>
-            ) : null}
-            <View style={styles.modalActions}>
-              <TouchableOpacity
-                style={styles.cancelBtn}
-                onPress={handleCloseModal}
-                disabled={submitting}
-              >
-                <Text style={styles.cancelBtnText}>Cancel</Text>
-              </TouchableOpacity>
-              <TouchableOpacity
-                style={styles.createBtn}
-                onPress={handleCreateTask}
-                disabled={submitting}
-              >
-                <Text style={styles.createBtnText}>
-                  {submitting ? "Creating..." : "Create"}
-                </Text>
-              </TouchableOpacity>
-            </View>
-          </View>
-        </View>
-      </Modal>
-      <Modal
+        onClose={handleCloseModal}
+        onSubmit={handleCreateTask}
+        form={form}
+        onFormChange={handleFormChange}
+        formError={formError}
+        submitting={submitting}
+        difficultyColors={difficultyColors}
+      />
+      <TaskDetailModal
         visible={taskDetailModalVisible}
-        animationType="fade"
-        transparent
-        onRequestClose={handleCloseTaskDetail}
-      >
-        <TouchableOpacity
-          style={styles.modalOverlay}
-          activeOpacity={1}
-          onPress={handleCloseTaskDetail}
-        >
-          <TouchableOpacity
-            style={styles.modalContent}
-            activeOpacity={1}
-            onPress={(e) => e.stopPropagation()}
-          >
-            <Text style={styles.modalTitle}>Task Details</Text>
-            <Text style={styles.taskTitle}>{selectedTask?.title}</Text>
-            <Text style={styles.taskDesc}>
-              {selectedTask?.description || "No description."}
-            </Text>
-            <TouchableOpacity
-              style={styles.closeBtn}
-              onPress={handleCloseTaskDetail}
-            >
-              <Text style={styles.closeBtnText}>Close</Text>
-            </TouchableOpacity>
-          </TouchableOpacity>
-        </TouchableOpacity>
-      </Modal>
+        task={selectedTask}
+        onClose={handleCloseTaskDetail}
+      />
     </ThemedView>
   );
 };
@@ -398,70 +283,6 @@ const styles = StyleSheet.create({
     width: "100%",
     marginTop: 20,
     alignItems: "stretch",
-  },
-  taskCard: {
-    backgroundColor: "#3a2f4c",
-    borderRadius: 12,
-    padding: 16,
-    marginBottom: 12,
-    flexDirection: "row",
-    alignItems: "flex-start",
-    shadowColor: "#000",
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.1,
-    shadowRadius: 4,
-    elevation: 2,
-    width: "100%",
-  },
-  completedTaskCard: {
-    opacity: 0.6,
-  },
-  checkboxContainer: {
-    marginRight: 12,
-    marginTop: 2,
-  },
-  checkbox: {
-    width: 20,
-    height: 20,
-    borderRadius: 6,
-    borderWidth: 2,
-    borderColor: "#8b7b9e",
-    backgroundColor: "transparent",
-    justifyContent: "center",
-    alignItems: "center",
-  },
-  checkboxChecked: {
-    backgroundColor: "#ffd700",
-    borderColor: "#ffd700",
-  },
-  taskContent: {
-    flex: 1,
-  },
-  taskHeader: {
-    flexDirection: "row",
-    justifyContent: "space-between",
-    alignItems: "center",
-    marginBottom: 8,
-  },
-  difficultyBadge: {
-    paddingHorizontal: 8,
-    paddingVertical: 4,
-    borderRadius: 8,
-  },
-  difficultyText: {
-    color: "#fff",
-    fontSize: 10,
-    fontWeight: "700",
-    textTransform: "uppercase",
-  },
-  deleteButton: {
-    padding: 4,
-  },
-  taskText: {
-    color: "#fff",
-    fontSize: 16,
-    fontWeight: "500",
-    lineHeight: 22,
   },
   taskInfo: {
     flex: 1,
@@ -559,106 +380,6 @@ const styles = StyleSheet.create({
     fontSize: 32,
     fontWeight: "bold",
     marginTop: -2,
-  },
-  modalOverlay: {
-    flex: 1,
-    backgroundColor: "rgba(0,0,0,0.5)",
-    justifyContent: "center",
-    alignItems: "center",
-  },
-  modalContent: {
-    backgroundColor: Colors.dark.card,
-    borderRadius: 12,
-    padding: 24,
-    width: "90%",
-    maxWidth: 400,
-    alignItems: "stretch",
-  },
-  modalTitle: {
-    fontSize: 20,
-    fontWeight: "bold",
-    color: Colors.dark.accent,
-    marginBottom: 16,
-    textAlign: "center",
-  },
-  input: {
-    backgroundColor: Colors.dark.background,
-    color: Colors.dark.text,
-    borderRadius: 8,
-    padding: 10,
-    marginBottom: 12,
-    borderWidth: 1,
-    borderColor: Colors.dark.border,
-    fontSize: 16,
-  },
-  row: {
-    flexDirection: "row",
-    alignItems: "center",
-    marginBottom: 12,
-  },
-  label: {
-    color: Colors.dark.text,
-    fontWeight: "bold",
-    marginRight: 8,
-  },
-  diffBtn: {
-    paddingVertical: 6,
-    paddingHorizontal: 14,
-    borderRadius: 16,
-    borderWidth: 1,
-    borderColor: Colors.dark.border,
-    marginRight: 8,
-    backgroundColor: Colors.dark.background,
-  },
-  diffBtnActive: {
-    backgroundColor: Colors.dark.accent,
-    borderColor: Colors.dark.accent,
-  },
-  diffBtnText: {
-    color: Colors.dark.text,
-    fontWeight: "bold",
-  },
-  formError: {
-    color: Colors.dark.error,
-    marginBottom: 8,
-    textAlign: "center",
-  },
-  modalActions: {
-    flexDirection: "row",
-    justifyContent: "flex-end",
-    marginTop: 8,
-  },
-  cancelBtn: {
-    marginRight: 16,
-    paddingVertical: 8,
-    paddingHorizontal: 18,
-    borderRadius: 8,
-    backgroundColor: Colors.dark.border,
-  },
-  cancelBtnText: {
-    color: Colors.dark.text,
-    fontWeight: "bold",
-  },
-  createBtn: {
-    paddingVertical: 8,
-    paddingHorizontal: 18,
-    borderRadius: 8,
-    backgroundColor: Colors.dark.accent,
-  },
-  createBtnText: {
-    color: "#fff",
-    fontWeight: "bold",
-  },
-  closeBtn: {
-    marginTop: 16,
-    paddingVertical: 8,
-    paddingHorizontal: 18,
-    borderRadius: 8,
-    backgroundColor: Colors.dark.border,
-  },
-  closeBtnText: {
-    color: Colors.dark.text,
-    fontWeight: "bold",
   },
   // Remove completedTaskDim and toggle styles
 });

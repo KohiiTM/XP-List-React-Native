@@ -42,6 +42,7 @@ const localItemImageMap = {
 const getImageSource = (item) => {
   if (!item) return Icon;
 
+  // First, try to match by the image field
   if (item.image) {
     const imageKey = Object.keys(localItemImageMap).find(
       (key) => item.image.endsWith(key) || item.image === key
@@ -50,6 +51,19 @@ const getImageSource = (item) => {
     if (imageKey) {
       return localItemImageMap[imageKey];
     }
+  }
+
+  // Fallback: Try to match by item name to image mapping
+  const nameToImageMap = {
+    "Ancient Parchment": "parchment.png",
+    "Golden Icon": "icon.png", 
+    "Explorer's Badge": "icon.png",
+    "Unsolved Cube": "unsolved_cube.png"
+  };
+
+  if (item.name && nameToImageMap[item.name]) {
+    const fallbackImage = nameToImageMap[item.name];
+    return localItemImageMap[fallbackImage];
   }
 
   return Icon;
@@ -67,6 +81,7 @@ const Inventory = () => {
   useEffect(() => {
     fetchItems();
   }, [fetchItems]);
+
 
   const filteredItems =
     selectedCategory === "All"

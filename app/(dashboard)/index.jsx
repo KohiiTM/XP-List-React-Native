@@ -29,6 +29,10 @@ import LevelDisplay from "@components/LevelDisplay";
 import ProfilePicturePicker from "@components/ProfilePicturePicker";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import useInventory from "@hooks/useInventory";
+import TaskCard from "@components/tasks/TaskCard";
+import TaskDetailModal from "@components/tasks/TaskDetailModal";
+import DailyChestButton from "@components/inventory/DailyChestButton";
+import ChestRewardModal from "@components/inventory/ChestRewardModal";
 
 import { Colors } from "@constants/Colors";
 
@@ -38,17 +42,6 @@ import { usePullToRefresh } from "@hooks/usePullToRefresh";
 
 const DAILY_CHEST_KEY = "dailyChestLastOpened";
 const CHEST_COOLDOWN = 24 * 60 * 60 * 1000; // 24 hours in ms
-
-// Helper to format ms as hh:mm:ss
-function formatCooldown(ms) {
-  const totalSeconds = Math.ceil(ms / 1000);
-  const hours = Math.floor(totalSeconds / 3600);
-  const minutes = Math.floor((totalSeconds % 3600) / 60);
-  const seconds = totalSeconds % 60;
-  return `${hours.toString().padStart(2, "0")}:${minutes
-    .toString()
-    .padStart(2, "0")}:${seconds.toString().padStart(2, "0")}`;
-}
 
 const itemImages = {
   "icon.png": Logo,
@@ -250,44 +243,13 @@ const Home = () => {
   };
 
   const renderTask = ({ item }) => (
-    <TouchableOpacity onPress={() => handleShowTaskDetail(item)}>
-      <View
-        style={[styles.taskCard, item.completed && styles.completedTaskCard]}
-      >
-        <TouchableOpacity
-          style={styles.checkboxContainer}
-          onPress={() => handleComplete(item)}
-        >
-          <View
-            style={[styles.checkbox, item.completed && styles.checkboxChecked]}
-          >
-            {item.completed && (
-              <Ionicons name="checkmark" size={14} color="#fff" />
-            )}
-          </View>
-        </TouchableOpacity>
-
-        <View style={styles.taskContent}>
-          <View style={styles.taskHeader}>
-            <View
-              style={[
-                styles.difficultyBadge,
-                { backgroundColor: difficultyColors[item.difficulty] },
-              ]}
-            >
-              <Text style={styles.difficultyText}>{item.difficulty}</Text>
-            </View>
-            <TouchableOpacity
-              onPress={() => tasksHook.deleteTask(item.$id)}
-              style={styles.deleteButton}
-            >
-              <Ionicons name="close" size={16} color="#d32f2f" />
-            </TouchableOpacity>
-          </View>
-          <Text style={styles.taskText}>{item.title}</Text>
-        </View>
-      </View>
-    </TouchableOpacity>
+    <TaskCard
+      item={item}
+      onPress={handleShowTaskDetail}
+      onComplete={handleComplete}
+      onDelete={tasksHook.deleteTask}
+      difficultyColors={difficultyColors}
+    />
   );
 
   const getProfilePictureUrl = () => {
@@ -301,21 +263,11 @@ const Home = () => {
       style={styles.container} 
       safe={true}
     >
-      {/* Daily Chest Button */}
-      <TouchableOpacity
-        style={styles.chestButton}
+      <DailyChestButton
         onPress={openChest}
-        disabled={chestCooldown > 0 || chestLoading}
-      >
-        <Ionicons
-          name="cube"
-          size={36}
-          color={chestCooldown > 0 ? "#8b7b9e" : "#ffd700"}
-        />
-        <Text style={styles.chestText}>
-          {chestCooldown > 0 ? formatCooldown(chestCooldown) : "Daily Chest"}
-        </Text>
-      </TouchableOpacity>
+        cooldown={chestCooldown}
+        loading={chestLoading}
+      />
       {user && (
         <View style={{ alignItems: "center", marginTop: 12, marginBottom: 8 }}>
           <ProfilePicturePicker
@@ -395,76 +347,17 @@ const Home = () => {
           )}
         </View>
       </ScrollView>
-      <Modal
+      <TaskDetailModal
         visible={taskDetailModalVisible}
-        animationType="fade"
-        transparent
-        onRequestClose={handleCloseTaskDetail}
-      >
-        <TouchableOpacity
-          style={styles.modalOverlay}
-          activeOpacity={1}
-          onPress={handleCloseTaskDetail}
-        >
-          <TouchableOpacity
-            style={styles.modalContent}
-            activeOpacity={1}
-            onPress={(e) => e.stopPropagation()}
-          >
-            <Text style={styles.modalTitle}>Task Details</Text>
-            <Text style={styles.taskTitle}>{selectedTask?.title}</Text>
-            <Text style={styles.taskDesc}>
-              {selectedTask?.description || "No description."}
-            </Text>
-            <TouchableOpacity
-              style={styles.closeBtn}
-              onPress={handleCloseTaskDetail}
-            >
-              <Text style={styles.closeBtnText}>Close</Text>
-            </TouchableOpacity>
-          </TouchableOpacity>
-        </TouchableOpacity>
-      </Modal>
-      {/* Chest Reward Modal */}
-      <Modal
+        task={selectedTask}
+        onClose={handleCloseTaskDetail}
+      />
+      <ChestRewardModal
         visible={chestModalVisible}
-        animationType="fade"
-        transparent
-        onRequestClose={() => setChestModalVisible(false)}
-      >
-        <TouchableOpacity
-          style={styles.chestModalOverlay}
-          activeOpacity={1}
-          onPress={() => setChestModalVisible(false)}
-        >
-          <TouchableOpacity
-            style={styles.chestModalContent}
-            activeOpacity={1}
-            onPress={(e) => e.stopPropagation()}
-          >
-            {chestReward && (
-              <>
-                <Ionicons
-                  name="cube"
-                  size={48}
-                  color="#ffd700"
-                  style={{ marginBottom: 10 }}
-                />
-                <Text style={styles.chestModalTitle}>You received:</Text>
-                <Image
-                  source={itemImages[chestReward.image]}
-                  style={styles.chestModalImg}
-                  resizeMode="contain"
-                />
-                <Text style={styles.chestModalItem}>{chestReward.name}</Text>
-                <Text style={styles.chestModalDesc}>
-                  {chestReward.description}
-                </Text>
-              </>
-            )}
-          </TouchableOpacity>
-        </TouchableOpacity>
-      </Modal>
+        reward={chestReward}
+        onClose={() => setChestModalVisible(false)}
+        itemImages={itemImages}
+      />
     </ThemedView>
   );
 };
@@ -565,69 +458,6 @@ const styles = StyleSheet.create({
     marginTop: 8,
     textAlign: "center",
   },
-  taskCard: {
-    backgroundColor: "#3a2f4c",
-    borderRadius: 12,
-    padding: 16,
-    marginBottom: 12,
-    flexDirection: "row",
-    alignItems: "flex-start",
-    shadowColor: "#000",
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.1,
-    shadowRadius: 4,
-    elevation: 2,
-  },
-  completedTaskCard: {
-    opacity: 0.6,
-  },
-  checkboxContainer: {
-    marginRight: 12,
-    marginTop: 2,
-  },
-  checkbox: {
-    width: 20,
-    height: 20,
-    borderRadius: 6,
-    borderWidth: 2,
-    borderColor: "#8b7b9e",
-    backgroundColor: "transparent",
-    justifyContent: "center",
-    alignItems: "center",
-  },
-  checkboxChecked: {
-    backgroundColor: "#ffd700",
-    borderColor: "#ffd700",
-  },
-  taskContent: {
-    flex: 1,
-  },
-  taskHeader: {
-    flexDirection: "row",
-    justifyContent: "space-between",
-    alignItems: "center",
-    marginBottom: 8,
-  },
-  difficultyBadge: {
-    paddingHorizontal: 8,
-    paddingVertical: 4,
-    borderRadius: 8,
-  },
-  difficultyText: {
-    color: "#fff",
-    fontSize: 10,
-    fontWeight: "700",
-    textTransform: "uppercase",
-  },
-  deleteButton: {
-    padding: 4,
-  },
-  taskText: {
-    color: "#fff",
-    fontSize: 16,
-    fontWeight: "500",
-    lineHeight: 22,
-  },
   bottomNav: {
     position: "absolute",
     bottom: 0,
@@ -657,100 +487,5 @@ const styles = StyleSheet.create({
   },
   navIconActive: {
     backgroundColor: "#3a2f4c",
-  },
-  modalOverlay: {
-    flex: 1,
-    justifyContent: "center",
-    alignItems: "center",
-    backgroundColor: "rgba(0, 0, 0, 0.5)",
-  },
-  modalContent: {
-    backgroundColor: "#3a2f4c",
-    borderRadius: 10,
-    padding: 20,
-    width: "80%",
-    alignItems: "center",
-  },
-  modalTitle: {
-    color: "#ffd700",
-    fontSize: 24,
-    fontWeight: "700",
-    marginBottom: 15,
-  },
-  taskTitle: {
-    color: "#fff",
-    fontSize: 20,
-    fontWeight: "600",
-    marginBottom: 10,
-  },
-  taskDesc: {
-    color: "#8b7b9e",
-    fontSize: 16,
-    marginBottom: 20,
-    textAlign: "center",
-  },
-  closeBtn: {
-    backgroundColor: "#ffd700",
-    paddingVertical: 10,
-    paddingHorizontal: 20,
-    borderRadius: 8,
-  },
-  closeBtnText: {
-    color: "#2c2137",
-    fontSize: 18,
-    fontWeight: "700",
-  },
-  chestButton: {
-    position: "absolute",
-    top: 80, // Adjust as needed
-    left: 20,
-    backgroundColor: "#3a2f4c",
-    borderRadius: 20,
-    padding: 10,
-    flexDirection: "row",
-    alignItems: "center",
-    justifyContent: "center",
-    zIndex: 10,
-  },
-  chestText: {
-    color: "#ffd700",
-    fontSize: 14,
-    fontWeight: "600",
-    marginLeft: 8,
-  },
-  chestModalOverlay: {
-    flex: 1,
-    justifyContent: "center",
-    alignItems: "center",
-    backgroundColor: "rgba(0, 0, 0, 0.5)",
-  },
-  chestModalContent: {
-    backgroundColor: "#3a2f4c",
-    borderRadius: 10,
-    padding: 20,
-    width: "80%",
-    alignItems: "center",
-  },
-  chestModalTitle: {
-    color: "#ffd700",
-    fontSize: 20,
-    fontWeight: "700",
-    marginBottom: 15,
-  },
-  chestModalImg: {
-    width: 100,
-    height: 100,
-    marginBottom: 15,
-  },
-  chestModalItem: {
-    color: "#fff",
-    fontSize: 18,
-    fontWeight: "600",
-    marginBottom: 10,
-  },
-  chestModalDesc: {
-    color: "#8b7b9e",
-    fontSize: 14,
-    textAlign: "center",
   },
 });

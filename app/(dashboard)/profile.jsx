@@ -18,6 +18,7 @@ import { useLeveling } from "@hooks/useLeveling";
 import Constants from "expo-constants";
 import { databases, account } from "@lib/appwrite";
 import { storage, client } from "@lib/appwrite";
+import { Query } from "react-native-appwrite";
 import LevelDisplay from "@components/LevelDisplay";
 import { Ionicons } from "@expo/vector-icons";
 import ProfilePicturePicker from "@components/ProfilePicturePicker";
@@ -299,6 +300,53 @@ const Profile = () => {
     Alert.alert("All Tasks Cleared");
   };
 
+  const handleFixInventoryImages = async () => {
+    if (!user?.$id) {
+      Alert.alert("Error", "User not authenticated");
+      return;
+    }
+
+    try {
+      const DATABASE_ID = Constants.expoConfig.extra.DATABASE_ID;
+      const INVENTORY_COLLECTION_ID = Constants.expoConfig.extra.INVENTORY_COLLECTION_ID;
+
+      // Get all inventory items for this user
+      const res = await databases.listDocuments(
+        DATABASE_ID,
+        INVENTORY_COLLECTION_ID,
+        [Query.equal("userId", user.$id)]
+      );
+
+      console.log("Found inventory items to fix:", res.documents);
+
+      const nameToImageMap = {
+        "Ancient Parchment": "parchment.png",
+        "Golden Icon": "icon.png", 
+        "Explorer's Badge": "icon.png",
+        "Unsolved Cube": "unsolved_cube.png"
+      };
+
+      let fixedCount = 0;
+      for (const item of res.documents) {
+        if (!item.image && nameToImageMap[item.name]) {
+          console.log(`Fixing image for item: ${item.name} -> ${nameToImageMap[item.name]}`);
+          await databases.updateDocument(
+            DATABASE_ID,
+            INVENTORY_COLLECTION_ID,
+            item.$id,
+            { image: nameToImageMap[item.name] }
+          );
+          fixedCount++;
+        }
+      }
+
+      Alert.alert("Inventory Images Fixed", `Fixed ${fixedCount} items`);
+    } catch (error) {
+      console.error("Failed to fix inventory images:", error);
+      Alert.alert("Error", "Failed to fix inventory images");
+    }
+  };
+
   return (
     <View style={styles.container}>
       <ScrollView
@@ -462,6 +510,12 @@ const Profile = () => {
               onPress={handleClearTasks}
             >
               <Text style={styles.devModalBtnText}>Clear All Tasks</Text>
+            </TouchableOpacity>
+            <TouchableOpacity
+              style={styles.devModalBtn}
+              onPress={handleFixInventoryImages}
+            >
+              <Text style={styles.devModalBtnText}>Fix Inventory Images</Text>
             </TouchableOpacity>
             <TouchableOpacity
               style={styles.devModalClose}
