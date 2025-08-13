@@ -1,4 +1,4 @@
-import React, { useEffect, useState, useCallback } from "react";
+import React, { useEffect, useState, useCallback, useRef, useMemo } from "react";
 import {
   StyleSheet,
   Text,
@@ -29,10 +29,11 @@ import LevelDisplay from "@components/LevelDisplay";
 import ProfilePicturePicker from "@components/ProfilePicturePicker";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import useInventory from "@hooks/useInventory";
-import TaskCard from "@components/tasks/TaskCard";
 import TaskDetailModal from "@components/tasks/TaskDetailModal";
 import DailyChestButton from "@components/inventory/DailyChestButton";
 import ChestRewardModal from "@components/inventory/ChestRewardModal";
+import TasksSection from "@components/TasksSection";
+import UserProfileSection from "@components/UserProfileSection";
 
 import { Colors } from "@constants/Colors";
 
@@ -60,7 +61,39 @@ const Home = () => {
   // Use appropriate tasks hook based on authentication status
   const tasksHook = user ? useTasks() : useLocalTasks();
   const { tasks, loading, error, fetchTasks } = tasksHook;
-  const { refreshing, onRefresh } = usePullToRefresh(fetchTasks);
+  
+  // Stabilize tasks array to prevent unnecessary re-renders
+  const [stableTasks, setStableTasks] = useState(tasks || []);
+  const tasksRef = useRef(tasks);
+  
+  useEffect(() => {
+    if (tasks !== tasksRef.current) {
+      setStableTasks(tasks || []);
+      tasksRef.current = tasks;
+    }
+  }, [tasks]);
+
+  // Debounce loading state to prevent rapid flickering
+  const [debouncedLoading, setDebouncedLoading] = useState(loading);
+  
+  useEffect(() => {
+    if (loading) {
+      // Show loading immediately when it starts
+      setDebouncedLoading(true);
+    } else {
+      // Delay hiding loading to prevent rapid flickering
+      const timer = setTimeout(() => {
+        setDebouncedLoading(false);
+      }, 150);
+      return () => clearTimeout(timer);
+    }
+  }, [loading]);
+  
+  const memoizedFetchTasks = useCallback(() => {
+    fetchTasks();
+  }, [user]);
+  
+  const { refreshing, onRefresh } = usePullToRefresh(memoizedFetchTasks);
   const { items: inventoryItems, addItem, fetchItems } = useInventory();
 
   const [profile, setProfile] = useState(null);
@@ -77,15 +110,15 @@ const Home = () => {
   const [chestLoading, setChestLoading] = useState(true);
 
   useEffect(() => {
-    fetchTasks();
-  }, [user, fetchTasks]);
+    memoizedFetchTasks();
+  }, [memoizedFetchTasks]);
 
   // Clear local tasks when user signs in
   useEffect(() => {
     if (user && tasksHook.clearLocalTasks) {
       tasksHook.clearLocalTasks();
     }
-  }, [user, tasksHook.clearLocalTasks]);
+  }, [user]);
 
   useEffect(() => {
     const fetchProfile = async () => {
@@ -137,11 +170,13 @@ const Home = () => {
         await AsyncStorage.removeItem("DAILY_CHEST_RESET");
       }
     };
-    const interval = setInterval(checkReset, 1000);
+    // Check immediately, then set up interval only if needed
+    checkReset();
+    const interval = setInterval(checkReset, 10000); // Check every 10 seconds instead of every second
     return () => clearInterval(interval);
   }, []);
 
-  const handleComplete = async (task) => {
+  const handleComplete = useCallback(async (task) => {
     try {
       const wasCompleted = task.completed;
       await tasksHook.updateTask(task.$id, {
@@ -165,16 +200,21 @@ const Home = () => {
     } catch (err) {
       Alert.alert("Task completion failed", err.message);
     }
-  };
+  }, [tasksHook.updateTask, user, awardXPForTask]);
 
-  const handleShowTaskDetail = (task) => {
+  const handleShowTaskDetail = useCallback((task) => {
     setSelectedTask(task);
     setTaskDetailModalVisible(true);
-  };
-  const handleCloseTaskDetail = () => {
+  }, []);
+  
+  const handleCloseTaskDetail = useCallback(() => {
     setTaskDetailModalVisible(false);
     setSelectedTask(null);
-  };
+  }, []);
+
+  const memoizedDeleteTask = useCallback((taskId) => {
+    return tasksHook.deleteTask(taskId);
+  }, [tasksHook.deleteTask]);
 
   const openChest = async () => {
     if (chestCooldown > 0) {
@@ -236,21 +276,11 @@ const Home = () => {
     }
   }, [chestCooldown]);
 
-  const difficultyColors = {
-    easy: "#8bc34a",
-    medium: "#ff9800",
-    hard: "#d32f2f",
-  };
-
-  const renderTask = ({ item }) => (
-    <TaskCard
-      item={item}
-      onPress={handleShowTaskDetail}
-      onComplete={handleComplete}
-      onDelete={tasksHook.deleteTask}
-      difficultyColors={difficultyColors}
-    />
-  );
+  const difficultyColors = useMemo(() => ({
+    easy: Colors.dark.easy,
+    medium: Colors.dark.medium,
+    hard: Colors.dark.hard,
+  }), []);
 
   const getProfilePictureUrl = () => {
     if (!profile?.profilePictureFileId) return null;
@@ -268,36 +298,14 @@ const Home = () => {
         cooldown={chestCooldown}
         loading={chestLoading}
       />
-      {user && (
-        <View style={{ alignItems: "center", marginTop: 12, marginBottom: 8 }}>
-          <ProfilePicturePicker
-            currentImageUrl={getProfilePictureUrl()}
-            onImageUpdate={() => {}}
-            size={100}
-          />
-          {profileLoading ? (
-            <Text style={styles.username}>Loading...</Text>
-          ) : profileError ? (
-            <Text style={styles.username}>Error</Text>
-          ) : (
-            <Text style={styles.username}>
-              {profile?.username || "No username"}
-            </Text>
-          )}
-          <View style={styles.levelSection}>
-            <LevelDisplay
-              level={levelInfo.level}
-              currentLevelXP={levelInfo.currentLevelXP}
-              xpToNextLevel={levelInfo.xpToNextLevel}
-              totalXP={levelInfo.totalXP}
-              levelTitle={levelInfo.levelTitle}
-              levelColor={levelInfo.levelColor}
-              consecutiveCompletions={levelInfo.consecutiveCompletions}
-              showStreak={true}
-            />
-          </View>
-        </View>
-      )}
+      <UserProfileSection
+        user={user}
+        profile={profile}
+        profileLoading={profileLoading}
+        profileError={profileError}
+        levelInfo={levelInfo}
+        styles={styles}
+      />
       <ScrollView
         style={styles.scrollView}
         contentContainerStyle={styles.scrollContent}
@@ -310,42 +318,17 @@ const Home = () => {
       >
         <View style={styles.header} />
         {/* Tasks Section */}
-        <View style={styles.tasksSection}>
-          <View style={styles.sectionHeader}>
-            <Text style={styles.sectionTitle}>Tasks</Text>
-            <View style={styles.taskCount}>
-              <Text style={styles.taskCountText}>
-                {tasks?.length || 0} items
-              </Text>
-            </View>
-          </View>
-
-          {loading ? (
-            <View style={styles.loadingContainer}>
-              <Text style={styles.loadingText}>Loading tasks...</Text>
-            </View>
-          ) : error ? (
-            <View style={styles.errorContainer}>
-              <Text style={styles.errorText}>{error}</Text>
-            </View>
-          ) : (
-            <FlatList
-              data={tasks}
-              keyExtractor={(item) => item.$id}
-              renderItem={renderTask}
-              scrollEnabled={false}
-              ListEmptyComponent={
-                <View style={styles.emptyContainer}>
-                  <Ionicons name="list-outline" size={48} color="#8b7b9e" />
-                  <Text style={styles.emptyText}>No tasks yet</Text>
-                  <Text style={styles.emptySubtext}>
-                    Add your first task to get started
-                  </Text>
-                </View>
-              }
-            />
-          )}
-        </View>
+        <TasksSection
+          tasks={stableTasks}
+          loading={debouncedLoading}
+          error={error}
+          onRetry={memoizedFetchTasks}
+          onTaskPress={handleShowTaskDetail}
+          onTaskComplete={handleComplete}
+          onTaskDelete={memoizedDeleteTask}
+          difficultyColors={difficultyColors}
+          styles={styles}
+        />
       </ScrollView>
       <TaskDetailModal
         visible={taskDetailModalVisible}
@@ -371,7 +354,7 @@ export default Home;
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: "#2c2137",
+    backgroundColor: Colors.dark.background,
   },
   scrollView: {
     flex: 1,
@@ -385,7 +368,7 @@ const styles = StyleSheet.create({
     marginBottom: 16,
   },
   username: {
-    color: "#ffd700",
+    color: Colors.dark.accent,
     fontSize: 28,
     fontWeight: "700",
     textAlign: "center",
@@ -411,49 +394,33 @@ const styles = StyleSheet.create({
     marginBottom: 20,
   },
   sectionTitle: {
-    color: "#ffd700",
+    color: Colors.dark.accent,
     fontSize: 24,
     fontWeight: "700",
   },
   taskCount: {
-    backgroundColor: "#3a2f4c",
+    backgroundColor: Colors.dark.secondary,
     paddingHorizontal: 12,
     paddingVertical: 6,
     borderRadius: 12,
   },
   taskCountText: {
-    color: "#8b7b9e",
+    color: Colors.dark.textSecondary,
     fontSize: 12,
     fontWeight: "600",
-  },
-  loadingContainer: {
-    alignItems: "center",
-    paddingVertical: 40,
-  },
-  loadingText: {
-    color: "#8b7b9e",
-    fontSize: 16,
-  },
-  errorContainer: {
-    alignItems: "center",
-    paddingVertical: 40,
-  },
-  errorText: {
-    color: "#d32f2f",
-    fontSize: 16,
   },
   emptyContainer: {
     alignItems: "center",
     paddingVertical: 60,
   },
   emptyText: {
-    color: "#8b7b9e",
+    color: Colors.dark.textSecondary,
     fontSize: 18,
     fontWeight: "600",
     marginTop: 16,
   },
   emptySubtext: {
-    color: "#8b7b9e",
+    color: Colors.dark.textSecondary,
     fontSize: 14,
     marginTop: 8,
     textAlign: "center",

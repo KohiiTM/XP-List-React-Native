@@ -5,16 +5,15 @@ import {
   StyleSheet,
   View,
   Text,
-  TextInput,
   TouchableOpacity,
-  ActivityIndicator,
   Linking,
 } from "react-native";
 import { Link, useRouter } from "expo-router";
 import { Colors } from "@constants/Colors";
 import { useUser } from "@hooks/useUser";
 
-import ThemedButton from "@components/ThemedButton";
+import ThemedTextInput from "@components/common/ThemedTextInput";
+import ActionButton from "@components/common/ActionButton";
 import ThemedView from "@components/ThemedView";
 import Spacer from "@components/Spacer";
 
@@ -40,27 +39,31 @@ const Login = () => {
     <TouchableWithoutFeedback onPress={Keyboard.dismiss}>
       <ThemedView style={styles.container}>
         <Text style={styles.title}>Login to XP List</Text>
-        <TextInput
-          style={styles.input}
+        <ThemedTextInput
           placeholder="Email"
-          placeholderTextColor="#8b7b9e"
           value={email}
           onChangeText={setEmail}
           autoCapitalize="none"
           keyboardType="email-address"
+          label="Email"
+          containerStyle={styles.inputContainer}
         />
-        <TextInput
-          style={styles.input}
+        <ThemedTextInput
           placeholder="Password"
-          placeholderTextColor="#8b7b9e"
           value={password}
           onChangeText={setPassword}
           secureTextEntry
+          label="Password"
+          containerStyle={styles.inputContainer}
         />
 
-        <ThemedButton onPress={handleSubmit}>
-          <Text style={{ color: Colors.buttonText }}>Login</Text>
-        </ThemedButton>
+        <ActionButton
+          variant="primary"
+          title="Login"
+          onPress={handleSubmit}
+          fullWidth
+          style={styles.loginButton}
+        />
 
         <Spacer />
         {error && <Text style={styles.error}>{error}</Text>}
@@ -74,7 +77,7 @@ const Login = () => {
               Linking.openURL("https://kohiitm.github.io/xplist-privacy-policy/")
             }
           >
-            <Text style={{ color: "#fff", textDecorationLine: "underline" }}>
+            <Text style={[styles.privacyText]}>
               Privacy Policy
             </Text>
           </TouchableOpacity>
@@ -91,50 +94,41 @@ const styles = StyleSheet.create({
     flex: 1,
     justifyContent: "center",
     alignItems: "center",
-    backgroundColor: "#2c2137",
+    backgroundColor: Colors.dark.background,
     padding: 24,
   },
   title: {
-    color: "#ffd700",
+    color: Colors.dark.accent,
     fontSize: 22,
     fontWeight: "bold",
     marginBottom: 24,
   },
-  input: {
+  inputContainer: {
     width: "100%",
     maxWidth: 320,
-    backgroundColor: "#3a2f4c",
-    color: "#fff",
-    borderRadius: 8,
-    padding: 12,
-    marginBottom: 16,
-    fontSize: 16,
   },
-  btn: {
-    backgroundColor: "#ffd700",
-    borderRadius: 8,
-    padding: 12,
+  loginButton: {
     width: "100%",
     maxWidth: 320,
-    alignItems: "center",
     marginBottom: 16,
-  },
-  pressed: {
-    opacity: 0.8,
   },
   link: {
-    color: "#ffd700",
+    color: Colors.dark.accent,
     marginTop: 8,
     textDecorationLine: "underline",
   },
+  privacyText: {
+    color: Colors.dark.text,
+    textDecorationLine: "underline",
+  },
   error: {
-    color: "#d32f2f",
+    color: Colors.dark.error,
     marginBottom: 12,
     padding: 10,
     borderWidth: 1,
     borderRadius: 15,
     marginHorizontal: 10,
-    backgroundColor: "#f5c1c8",
+    backgroundColor: Colors.dark.card,
   },
 });
 

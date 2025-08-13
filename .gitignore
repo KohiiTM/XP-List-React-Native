@@ -40,3 +40,6 @@ lib/
 appwrite.js
 database-schema.md
 .env
+
+# Planning and roadmap files
+future.md

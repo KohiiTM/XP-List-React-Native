@@ -23,6 +23,8 @@ import ThemedView from "@components/ThemedView";
 import TaskCard from "@components/tasks/TaskCard";
 import TaskDetailModal from "@components/tasks/TaskDetailModal";
 import TaskCreationModal from "@components/tasks/TaskCreationModal";
+import ActionButton from "@components/common/ActionButton";
+import LoadingErrorWrapper from "@components/common/LoadingErrorWrapper";
 
 const Tasks = () => {
   const { user } = useUser();
@@ -174,24 +176,6 @@ const Tasks = () => {
   const activeTasks = tasks ? tasks.filter((task) => !task.completed) : [];
   const hasTasks = activeTasks.length > 0;
 
-  if (loading) {
-    return (
-      <ThemedView style={styles.container} safe={true}>
-        <ActivityIndicator color={Colors.dark.accent} size="large" />
-      </ThemedView>
-    );
-  }
-
-  if (error) {
-    return (
-      <ThemedView style={styles.container} safe={true}>
-        <Text style={styles.error}>{error}</Text>
-        <TouchableOpacity onPress={fetchTasks} style={styles.retryBtn}>
-          <Text style={styles.retryText}>Retry</Text>
-        </TouchableOpacity>
-      </ThemedView>
-    );
-  }
 
   return (
     <ThemedView style={styles.container} safe={true}>
@@ -204,22 +188,33 @@ const Tasks = () => {
           </View>
         )}
       </View>
-      {/* Toggle removed */}
-      {hasTasks ? (
-        <FlatList
-          data={activeTasks}
-          keyExtractor={(item) => item.$id}
-          renderItem={renderTask}
-          contentContainerStyle={styles.listContent}
-        />
-      ) : (
-        <View style={styles.emptyContainer}>
-          <Text style={styles.empty}>No tasks found.</Text>
-        </View>
-      )}
-      <TouchableOpacity style={styles.fab} onPress={handleOpenModal}>
-        <Text style={styles.fabText}>+</Text>
-      </TouchableOpacity>
+      <LoadingErrorWrapper
+        loading={loading}
+        error={error}
+        onRetry={fetchTasks}
+        loadingText="Loading tasks..."
+        containerStyle={styles.contentWrapper}
+      >
+        {hasTasks ? (
+          <FlatList
+            data={activeTasks}
+            keyExtractor={(item) => item.$id}
+            renderItem={renderTask}
+            contentContainerStyle={styles.listContent}
+          />
+        ) : (
+          <View style={styles.emptyContainer}>
+            <Text style={styles.empty}>No tasks found.</Text>
+          </View>
+        )}
+      </LoadingErrorWrapper>
+      <ActionButton
+        variant="fab"
+        icon={<Ionicons name="add" size={24} color="#2c2137" />}
+        onPress={handleOpenModal}
+        style={styles.fab}
+        accessibilityLabel="Add new task"
+      />
       <TaskCreationModal
         visible={modalVisible}
         onClose={handleCloseModal}
@@ -338,14 +333,8 @@ const styles = StyleSheet.create({
     fontSize: 16,
     marginBottom: 10,
   },
-  retryBtn: {
-    backgroundColor: Colors.dark.button,
-    padding: 10,
-    borderRadius: 8,
-  },
-  retryText: {
-    color: Colors.dark.buttonText,
-    fontWeight: "bold",
+  contentWrapper: {
+    flex: 1,
   },
   empty: {
     color: Colors.dark.textSecondary,
@@ -363,23 +352,6 @@ const styles = StyleSheet.create({
     position: "absolute",
     right: 24,
     bottom: 80,
-    backgroundColor: Colors.dark.accent,
-    width: 56,
-    height: 56,
-    borderRadius: 28,
-    alignItems: "center",
-    justifyContent: "center",
-    elevation: 4,
-    shadowColor: "#000",
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.3,
-    shadowRadius: 4,
-  },
-  fabText: {
-    color: "#fff",
-    fontSize: 32,
-    fontWeight: "bold",
-    marginTop: -2,
   },
   // Remove completedTaskDim and toggle styles
 });

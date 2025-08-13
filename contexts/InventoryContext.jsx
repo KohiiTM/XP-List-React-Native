@@ -55,9 +55,6 @@ export function InventoryProvider({ children }) {
       setLoading(true);
       setError(null);
       try {
-        console.log("INVENTORY_COLLECTION_ID:", INVENTORY_COLLECTION_ID);
-        console.log("DATABASE_ID:", DATABASE_ID);
-        console.log("addItem called with:", itemData);
         // Check if the user already owns this item (by name)
         const res = await databases.listDocuments(
           DATABASE_ID,

@@ -1,27 +1,44 @@
-import { Pressable, StyleSheet } from "react-native";
-import { Colors } from "../constants/Colors";
+import React from "react";
+import { StyleSheet } from "react-native";
+import ActionButton from "./common/ActionButton";
 
-function ThemedButton({ style, ...props }) {
+/**
+ * ThemedButton - Legacy wrapper around ActionButton for backward compatibility
+ * 
+ * @deprecated Use ActionButton directly for new components
+ */
+function ThemedButton({ 
+  style, 
+  children, 
+  title,
+  variant = "primary",
+  size = "medium",
+  fullWidth = true,
+  ...props 
+}) {
+  const containerStyle = [
+    styles.legacyContainer,
+    style,
+  ];
+
   return (
-    <Pressable
-      style={({ pressed }) => [styles.btn, pressed && styles.pressed, style]}
+    <ActionButton
+      variant={variant}
+      size={size}
+      fullWidth={fullWidth}
+      style={containerStyle}
+      title={title}
       {...props}
-    />
+    >
+      {children}
+    </ActionButton>
   );
 }
 
 const styles = StyleSheet.create({
-  btn: {
-    backgroundColor: "#ffd700",
-    borderRadius: 8,
-    padding: 12,
-    width: "100%",
+  legacyContainer: {
     maxWidth: 320,
-    alignItems: "center",
     marginBottom: 16,
-  },
-  pressed: {
-    opacity: 0.8,
   },
 });
 

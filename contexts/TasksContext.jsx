@@ -76,20 +76,28 @@ export function TasksProvider({ children }) {
         setError("User not authenticated");
         return;
       }
-      setLoading(true);
       setError(null);
       try {
+        // Optimistically update the local state first
+        setTasks(prevTasks => 
+          prevTasks.map(task => 
+            task.$id === taskId 
+              ? { ...task, ...updates }
+              : task
+          )
+        );
+        
+        // Then update the database
         await databases.updateDocument(
           DATABASE_ID,
           TASKS_COLLECTION_ID,
           taskId,
           updates
         );
-        await fetchTasks();
       } catch (err) {
         setError(err?.message || String(err) || "Failed to update task");
-      } finally {
-        setLoading(false);
+        // Revert the optimistic update on error
+        await fetchTasks();
       }
     },
     [user, fetchTasks]
@@ -101,19 +109,21 @@ export function TasksProvider({ children }) {
         setError("User not authenticated");
         return;
       }
-      setLoading(true);
       setError(null);
       try {
+        // Optimistically remove from local state first
+        setTasks(prevTasks => prevTasks.filter(task => task.$id !== taskId));
+        
+        // Then delete from database
         await databases.deleteDocument(
           DATABASE_ID,
           TASKS_COLLECTION_ID,
           taskId
         );
-        await fetchTasks();
       } catch (err) {
         setError(err?.message || String(err) || "Failed to delete task");
-      } finally {
-        setLoading(false);
+        // Revert the optimistic update on error
+        await fetchTasks();
       }
     },
     [user, fetchTasks]

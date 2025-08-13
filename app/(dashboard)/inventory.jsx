@@ -20,6 +20,8 @@ import { usePullToRefresh } from "@hooks/usePullToRefresh";
 import Constants from "expo-constants";
 import * as ImagePicker from "expo-image-picker";
 import { uploadImageToAppwrite } from "@components/ProfilePicturePicker";
+import { CategoryTabs } from "@components/common";
+import BaseModal from "@components/common/BaseModal";
 
 import Parchment from "@assets/images/parchment.png";
 import Icon from "@assets/images/icon.png";
@@ -99,25 +101,6 @@ const Inventory = () => {
     slots.push(null);
   }
 
-  const renderCategory = (cat) => (
-    <TouchableOpacity
-      key={cat}
-      style={[
-        styles.categoryTab,
-        selectedCategory === cat && styles.categoryTabActive,
-      ]}
-      onPress={() => setSelectedCategory(cat)}
-    >
-      <Text
-        style={[
-          styles.categoryText,
-          selectedCategory === cat && styles.categoryTextActive,
-        ]}
-      >
-        {cat}
-      </Text>
-    </TouchableOpacity>
-  );
 
   const handleSlotPress = (item, index) => {
     if (item) {
@@ -159,7 +142,12 @@ const Inventory = () => {
   return (
     <ThemedView style={styles.container} safe={true}>
       <Text style={styles.title}>Inventory</Text>
-      <View style={styles.categoriesRow}>{CATEGORIES.map(renderCategory)}</View>
+      <CategoryTabs
+        categories={CATEGORIES}
+        selectedCategory={selectedCategory}
+        onCategoryChange={setSelectedCategory}
+        scrollable={false}
+      />
       <View style={styles.gridContainer}>
         <FlatList
           data={slots}
@@ -174,40 +162,27 @@ const Inventory = () => {
           }
         />
       </View>
-      <Modal
+      <BaseModal
         visible={modalVisible}
+        onClose={handleCloseModal}
+        title={modalItem?.name || "Item Details"}
         animationType="fade"
-        transparent
-        onRequestClose={handleCloseModal}
       >
-        <TouchableOpacity
-          style={styles.modalOverlay}
-          activeOpacity={1}
-          onPress={handleCloseModal}
-        >
-          <TouchableOpacity
-            style={styles.modalContent}
-            activeOpacity={1}
-            onPress={(e) => e.stopPropagation()}
-          >
-            {modalItem && (
-              <>
-                <Image
-                  source={getImageSource(modalItem)}
-                  style={styles.modalImg}
-                  resizeMode="contain"
-                />
-                <Text style={styles.modalTitle}>{modalItem.name}</Text>
-                <Text style={styles.modalCategory}>{modalItem.category}</Text>
-                <Text style={styles.modalDesc}>{modalItem.description}</Text>
-                <Text style={styles.modalQty}>
-                  Quantity: {modalItem.quantity}
-                </Text>
-              </>
-            )}
-          </TouchableOpacity>
-        </TouchableOpacity>
-      </Modal>
+        {modalItem && (
+          <View style={styles.modalContentWrapper}>
+            <Image
+              source={getImageSource(modalItem)}
+              style={styles.modalImg}
+              resizeMode="contain"
+            />
+            <Text style={styles.modalCategory}>{modalItem.category}</Text>
+            <Text style={styles.modalDesc}>{modalItem.description}</Text>
+            <Text style={styles.modalQty}>
+              Quantity: {modalItem.quantity}
+            </Text>
+          </View>
+        )}
+      </BaseModal>
     </ThemedView>
   );
 };
@@ -232,36 +207,6 @@ const styles = StyleSheet.create({
     textShadowRadius: 2,
     paddingBottom: 50,
   },
-  categoriesRow: {
-    flexDirection: "row",
-    marginBottom: 18,
-    justifyContent: "center",
-    alignItems: "center",
-    gap: 8,
-  },
-  categoryTab: {
-    backgroundColor: "#2c2137",
-    borderWidth: 2,
-    borderColor: "#ffd700",
-    borderRadius: 8,
-    paddingVertical: 6,
-    paddingHorizontal: 14,
-    marginHorizontal: 2,
-    marginBottom: 2,
-  },
-  categoryTabActive: {
-    backgroundColor: "#ffd700",
-    borderColor: "#fff",
-  },
-  categoryText: {
-    color: "#ffd700",
-    fontWeight: "bold",
-    fontFamily: "monospace",
-    fontSize: 14,
-  },
-  categoryTextActive: {
-    color: "#2c2137",
-  },
   gridContainer: {
     flex: 1,
     width: "100%",
@@ -276,9 +221,9 @@ const styles = StyleSheet.create({
     width: SLOT_SIZE,
     height: SLOT_SIZE,
     margin: 6,
-    backgroundColor: "#3a2f4c",
+    backgroundColor: Colors.dark.secondary,
     borderWidth: 3,
-    borderColor: "#ffd700",
+    borderColor: Colors.dark.accent,
     borderRadius: 8,
     alignItems: "center",
     justifyContent: "center",
@@ -289,12 +234,12 @@ const styles = StyleSheet.create({
     elevation: 2,
   },
   slotSelected: {
-    borderColor: "#fff",
-    backgroundColor: "#ffd700",
+    borderColor: Colors.dark.text,
+    backgroundColor: Colors.dark.accent,
   },
   emptySlot: {
-    backgroundColor: "#2c2137",
-    borderColor: "#8b7b9e",
+    backgroundColor: Colors.dark.background,
+    borderColor: Colors.dark.border,
   },
   slotImg: {
     width: SLOT_SIZE * 0.6,
@@ -302,7 +247,7 @@ const styles = StyleSheet.create({
     marginBottom: 4,
   },
   slotQty: {
-    color: "#fff",
+    color: Colors.dark.text,
     fontWeight: "bold",
     fontSize: 13,
     textShadowColor: "#000",
@@ -316,23 +261,9 @@ const styles = StyleSheet.create({
     borderBottomColor: Colors.dark.accent,
     color: Colors.dark.text,
   },
-  modalOverlay: {
-    flex: 1,
-    backgroundColor: "rgba(0,0,0,0.7)",
-    justifyContent: "center",
+  modalContentWrapper: {
     alignItems: "center",
-  },
-  modalContent: {
-    backgroundColor: Colors.dark.background,
-    borderRadius: 10,
-    padding: 20,
-    width: "80%",
-    alignItems: "center",
-    shadowColor: "#000",
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.25,
-    shadowRadius: 4,
-    elevation: 5,
+    paddingVertical: 10,
   },
   modalImg: {
     width: 100,
@@ -340,16 +271,9 @@ const styles = StyleSheet.create({
     marginBottom: 10,
     borderRadius: 5,
   },
-  modalTitle: {
-    fontWeight: "bold",
-    fontSize: 20,
-    marginBottom: 5,
-    color: Colors.dark.accent,
-    fontFamily: "monospace",
-  },
   modalCategory: {
     fontSize: 14,
-    color: "#ffd700",
+    color: Colors.dark.accent,
     marginBottom: 5,
     fontFamily: "monospace",
   },
@@ -362,7 +286,7 @@ const styles = StyleSheet.create({
   },
   modalQty: {
     fontSize: 14,
-    color: "#ffd700",
+    color: Colors.dark.accent,
     fontWeight: "bold",
     fontFamily: "monospace",
   },

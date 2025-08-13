@@ -71,7 +71,6 @@ export function useLocalTasks() {
 
   const updateTask = useCallback(
     async (taskId, updates) => {
-      setLoading(true)
       setError(null)
       try {
         const updatedTasks = tasks.map((task) =>
@@ -81,8 +80,6 @@ export function useLocalTasks() {
         await saveTasks(updatedTasks)
       } catch (err) {
         setError("Failed to update task")
-      } finally {
-        setLoading(false)
       }
     },
     [tasks, saveTasks]
@@ -90,7 +87,6 @@ export function useLocalTasks() {
 
   const deleteTask = useCallback(
     async (taskId) => {
-      setLoading(true)
       setError(null)
       try {
         const updatedTasks = tasks.filter((task) => task.$id !== taskId)
@@ -98,8 +94,6 @@ export function useLocalTasks() {
         await saveTasks(updatedTasks)
       } catch (err) {
         setError("Failed to delete task")
-      } finally {
-        setLoading(false)
       }
     },
     [tasks, saveTasks]
