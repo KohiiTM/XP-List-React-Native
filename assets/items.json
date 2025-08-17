@@ -5,15 +5,21 @@
     "description": "A mysterious parchment with faded runes.",
     "quantity": 2,
     "image": "parchment.png",
-    "category": "Key Item"
+    "category": "Key Item",
+    "isEquippable": false,
+    "equipSlot": null,
+    "equipmentAsset": null
   },
   {
     "id": 2,
-    "name": "Golden Icon",
-    "description": "A shiny golden icon, symbol of achievement.",
+    "name": "Golden Helmet",
+    "description": "A shiny golden helmet that provides protection and prestige.",
     "quantity": 1,
     "image": "icon.png",
-    "category": "Equipment"
+    "category": "Equipment",
+    "isEquippable": true,
+    "equipSlot": "head",
+    "equipmentAsset": "golden_helmet"
   },
   {
     "id": 3,
@@ -21,14 +27,53 @@
     "description": "Awarded for discovering new lands.",
     "quantity": 3,
     "image": "icon.png",
-    "category": "Consumable"
+    "category": "Equipment",
+    "isEquippable": true,
+    "equipSlot": "accessory",
+    "equipmentAsset": "explorer_badge"
   },
   {
     "id": 4,
     "name": "Unsolved Cube",
-    "description": "Awarded for discovering new lands.",
+    "description": "A mysterious cube that looks great on a shelf.",
     "quantity": 1,
     "image": "unsolved_cube.png",
-    "category": "Consumable"
+    "category": "Consumable",
+    "isEquippable": false,
+    "equipSlot": null,
+    "equipmentAsset": null
+  },
+  {
+    "id": 5,
+    "name": "Wizard Hat",
+    "description": "A mystical hat that enhances magical abilities.",
+    "quantity": 1,
+    "image": "icon.png",
+    "category": "Equipment",
+    "isEquippable": true,
+    "equipSlot": "head",
+    "equipmentAsset": "wizard_hat"
+  },
+  {
+    "id": 6,
+    "name": "Leather Armor",
+    "description": "Sturdy leather armor for protection in battle.",
+    "quantity": 1,
+    "image": "icon.png",
+    "category": "Equipment",
+    "isEquippable": true,
+    "equipSlot": "body",
+    "equipmentAsset": "leather_armor"
+  },
+  {
+    "id": 7,
+    "name": "Iron Sword",
+    "description": "A well-crafted iron sword for adventurers.",
+    "quantity": 1,
+    "image": "icon.png",
+    "category": "Equipment",
+    "isEquippable": true,
+    "equipSlot": "weapon",
+    "equipmentAsset": "iron_sword"
   }
 ]

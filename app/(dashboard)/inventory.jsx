@@ -10,13 +10,15 @@ import {
   Modal,
   useWindowDimensions,
   TextInput,
+  Alert,
 } from "react-native";
 import { Link } from "expo-router";
 import { Colors } from "@constants/Colors";
 import ThemedView from "@components/ThemedView";
-import useInventory from "@hooks/useInventory";
+import { useInventory } from "@hooks/useInventory";
 import PullToRefresh from "@components/PullToRefresh";
 import { usePullToRefresh } from "@hooks/usePullToRefresh";
+import { useCharacter } from "@contexts/CharacterContext";
 import Constants from "expo-constants";
 import * as ImagePicker from "expo-image-picker";
 import { uploadImageToAppwrite } from "@components/ProfilePicturePicker";
@@ -73,6 +75,7 @@ const getImageSource = (item) => {
 
 const Inventory = () => {
   const { items, loading, error, fetchItems, addItem } = useInventory();
+  const { character, equipItem, unequipItem } = useCharacter();
   const { refreshing, onRefresh } = usePullToRefresh(fetchItems);
   const [selectedCategory, setSelectedCategory] = useState("All");
   const [selectedSlot, setSelectedSlot] = useState(null);
@@ -116,12 +119,43 @@ const Inventory = () => {
     setSelectedSlot(null);
   };
 
+  const handleEquipItem = async (item) => {
+    if (!item.isEquippable || !item.equipSlot) {
+      Alert.alert("Error", "This item cannot be equipped");
+      return;
+    }
+
+    try {
+      await equipItem(item.$id, item.equipSlot);
+      Alert.alert("Success", `${item.name} equipped successfully!`);
+      handleCloseModal();
+    } catch (error) {
+      console.error("Equipment failed:", error);
+    }
+  };
+
+  const handleUnequipItem = async (slot) => {
+    try {
+      await unequipItem(slot);
+      Alert.alert("Success", "Item unequipped successfully!");
+    } catch (error) {
+      console.error("Unequip failed:", error);
+    }
+  };
+
+  const isItemEquipped = (item) => {
+    if (!character || !item.isEquippable) return false;
+    const slotField = `${item.equipSlot}Equipment`;
+    return character[slotField] === item.$id;
+  };
+
   const renderSlot = ({ item, index }) => (
     <TouchableOpacity
       style={[
         styles.slot,
         selectedSlot === index && styles.slotSelected,
         !item && styles.emptySlot,
+        item && isItemEquipped(item) && styles.equippedSlot,
       ]}
       onPress={() => handleSlotPress(item, index)}
       activeOpacity={item ? 0.7 : 1}
@@ -134,6 +168,11 @@ const Inventory = () => {
             resizeMode="contain"
           />
           <Text style={styles.slotQty}>x{item.quantity}</Text>
+          {isItemEquipped(item) && (
+            <View style={styles.equippedIndicator}>
+              <Text style={styles.equippedText}>E</Text>
+            </View>
+          )}
         </>
       ) : null}
     </TouchableOpacity>
@@ -180,6 +219,25 @@ const Inventory = () => {
             <Text style={styles.modalQty}>
               Quantity: {modalItem.quantity}
             </Text>
+            {modalItem.isEquippable && (
+              <View style={styles.equipmentActions}>
+                {isItemEquipped(modalItem) ? (
+                  <TouchableOpacity
+                    style={styles.unequipButton}
+                    onPress={() => handleUnequipItem(modalItem.equipSlot)}
+                  >
+                    <Text style={styles.unequipButtonText}>Unequip</Text>
+                  </TouchableOpacity>
+                ) : (
+                  <TouchableOpacity
+                    style={styles.equipButton}
+                    onPress={() => handleEquipItem(modalItem)}
+                  >
+                    <Text style={styles.equipButtonText}>Equip</Text>
+                  </TouchableOpacity>
+                )}
+              </View>
+            )}
           </View>
         )}
       </BaseModal>
@@ -241,6 +299,28 @@ const styles = StyleSheet.create({
     backgroundColor: Colors.dark.background,
     borderColor: Colors.dark.border,
   },
+  equippedSlot: {
+    borderColor: Colors.dark.accent,
+    backgroundColor: Colors.dark.secondary,
+    shadowColor: Colors.dark.accent,
+    shadowOpacity: 0.3,
+  },
+  equippedIndicator: {
+    position: "absolute",
+    top: 2,
+    right: 2,
+    backgroundColor: Colors.dark.accent,
+    borderRadius: 8,
+    width: 16,
+    height: 16,
+    justifyContent: "center",
+    alignItems: "center",
+  },
+  equippedText: {
+    color: Colors.dark.background,
+    fontSize: 10,
+    fontWeight: "bold",
+  },
   slotImg: {
     width: SLOT_SIZE * 0.6,
     height: SLOT_SIZE * 0.6,
@@ -289,6 +369,32 @@ const styles = StyleSheet.create({
     color: Colors.dark.accent,
     fontWeight: "bold",
     fontFamily: "monospace",
+  },
+  equipmentActions: {
+    marginTop: 16,
+    alignItems: "center",
+  },
+  equipButton: {
+    backgroundColor: Colors.dark.accent,
+    paddingHorizontal: 20,
+    paddingVertical: 10,
+    borderRadius: 8,
+  },
+  equipButtonText: {
+    color: "#fff",
+    fontWeight: "bold",
+    fontSize: 14,
+  },
+  unequipButton: {
+    backgroundColor: Colors.dark.border,
+    paddingHorizontal: 20,
+    paddingVertical: 10,
+    borderRadius: 8,
+  },
+  unequipButtonText: {
+    color: Colors.dark.text,
+    fontWeight: "bold",
+    fontSize: 14,
   },
 });
 

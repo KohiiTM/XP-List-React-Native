@@ -6,6 +6,7 @@ import { UserProvider } from "@contexts/UserContext";
 import { LevelsProvider } from "@contexts/LevelsContext";
 import { TasksProvider } from "@contexts/TasksContext";
 import { InventoryProvider } from "@contexts/InventoryContext";
+import { CharacterProvider } from "@contexts/CharacterContext";
 
 const RootLayout = () => {
   const colorScheme = useColorScheme();
@@ -14,8 +15,9 @@ const RootLayout = () => {
   return (
     <UserProvider>
       <InventoryProvider>
-        <LevelsProvider>
-          <TasksProvider>
+        <CharacterProvider>
+          <LevelsProvider>
+            <TasksProvider>
             <StatusBar style="light" />
             <Stack
               screenOptions={{
@@ -30,8 +32,9 @@ const RootLayout = () => {
               />
               <Stack.Screen name="(auth)" options={{ headerShown: false }} />
             </Stack>
-          </TasksProvider>
-        </LevelsProvider>
+            </TasksProvider>
+          </LevelsProvider>
+        </CharacterProvider>
       </InventoryProvider>
     </UserProvider>
   );

@@ -1,6 +1,6 @@
 import React, { memo } from 'react';
 import { View, Text } from 'react-native';
-import ProfilePicturePicker from '@components/ProfilePicturePicker';
+import CharacterAvatar from '@components/CharacterAvatar';
 import LevelDisplay from '@components/LevelDisplay';
 import Constants from 'expo-constants';
 
@@ -22,10 +22,9 @@ const UserProfileSection = memo(({
   
   return (
     <View style={{ alignItems: "center", marginTop: 12, marginBottom: 8 }}>
-      <ProfilePicturePicker
-        currentImageUrl={getProfilePictureUrl()}
-        onImageUpdate={() => {}}
+      <CharacterAvatar
         size={100}
+        renderMode="fullBody"
       />
       {profileLoading ? (
         <Text style={styles.username}>Loading...</Text>

@@ -26,9 +26,8 @@ import { useLocalTasks } from "@hooks/useLocalTasks";
 import { Ionicons } from "@expo/vector-icons";
 import { useColorScheme } from "react-native";
 import LevelDisplay from "@components/LevelDisplay";
-import ProfilePicturePicker from "@components/ProfilePicturePicker";
 import AsyncStorage from "@react-native-async-storage/async-storage";
-import useInventory from "@hooks/useInventory";
+import { useInventory } from "@hooks/useInventory";
 import TaskDetailModal from "@components/tasks/TaskDetailModal";
 import DailyChestButton from "@components/inventory/DailyChestButton";
 import ChestRewardModal from "@components/inventory/ChestRewardModal";
@@ -233,27 +232,59 @@ const Home = () => {
         image: "parchment.png",
         category: "Key Item",
         quantity: 1,
+        isEquippable: false,
+        equipSlot: null,
+        equipmentAsset: null,
       },
       {
-        name: "Golden Icon",
-        description: "A shiny golden icon, symbol of achievement.",
+        name: "Golden Helmet",
+        description: "A shiny golden helmet that provides protection and prestige.",
         image: "icon.png",
         category: "Equipment",
         quantity: 1,
+        isEquippable: true,
+        equipSlot: "head",
+        equipmentAsset: "golden_helmet",
       },
       {
         name: "Explorer's Badge",
         description: "Awarded for discovering new lands.",
         image: "icon.png",
-        category: "Consumable",
+        category: "Equipment",
         quantity: 1,
+        isEquippable: true,
+        equipSlot: "accessory",
+        equipmentAsset: "explorer_badge",
       },
       {
-        name: "Unsolved Cube",
-        description: "Looks great on a shelf.",
-        image: "unsolved_cube.png",
-        category: "Consumable",
+        name: "Wizard Hat",
+        description: "A mystical hat that enhances magical abilities.",
+        image: "icon.png",
+        category: "Equipment",
         quantity: 1,
+        isEquippable: true,
+        equipSlot: "head",
+        equipmentAsset: "wizard_hat",
+      },
+      {
+        name: "Leather Armor",
+        description: "Sturdy leather armor for protection in battle.",
+        image: "icon.png",
+        category: "Equipment",
+        quantity: 1,
+        isEquippable: true,
+        equipSlot: "body",
+        equipmentAsset: "leather_armor",
+      },
+      {
+        name: "Iron Sword",
+        description: "A well-crafted iron sword for adventurers.",
+        image: "icon.png",
+        category: "Equipment",
+        quantity: 1,
+        isEquippable: true,
+        equipSlot: "weapon",
+        equipmentAsset: "iron_sword",
       },
     ];
     const reward =

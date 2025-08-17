@@ -21,7 +21,8 @@ import { storage, client } from "@lib/appwrite";
 import { Query } from "react-native-appwrite";
 import LevelDisplay from "@components/LevelDisplay";
 import { Ionicons } from "@expo/vector-icons";
-import ProfilePicturePicker from "@components/ProfilePicturePicker";
+import CharacterAvatar from "@components/CharacterAvatar";
+import CharacterCustomizer from "@components/CharacterCustomizer";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { useTasks } from "@hooks/useTasks";
 import { useLocalTasks } from "@hooks/useLocalTasks";
@@ -46,6 +47,7 @@ const Profile = () => {
   const [profilePictureFileId, setProfilePictureFileId] = useState(null);
   const [devMode, setDevMode] = useState(false);
   const [devModalVisible, setDevModalVisible] = useState(false);
+  const [characterCustomizerVisible, setCharacterCustomizerVisible] = useState(false);
   const cloudTasks = useTasks();
   const localTasks = useLocalTasks();
   const isCloud = !!user; // true if logged in
@@ -358,11 +360,16 @@ const Profile = () => {
       >
         <View style={styles.profileHeader}>
           <View style={styles.avatarContainer}>
-            <ProfilePicturePicker
-              currentImageUrl={getProfilePictureUrl()}
-              onImageUpdate={handleProfilePictureUpdate}
+            <CharacterAvatar
               size={100}
+              renderMode="face"
             />
+            <TouchableOpacity
+              style={styles.customizeButton}
+              onPress={() => setCharacterCustomizerVisible(true)}
+            >
+              <Ionicons name="color-palette" size={16} color="#fff" />
+            </TouchableOpacity>
           </View>
 
           {profileLoading ? (
@@ -526,6 +533,12 @@ const Profile = () => {
           </View>
         </View>
       </Modal>
+      
+      <CharacterCustomizer
+        visible={characterCustomizerVisible}
+        onClose={() => setCharacterCustomizerVisible(false)}
+      />
+      
       <View style={{ alignItems: "center", marginTop: 24 }}>
         <TouchableOpacity
           onPress={() =>
@@ -574,6 +587,19 @@ const styles = StyleSheet.create({
   },
   editButton: {
     padding: 8,
+  },
+  customizeButton: {
+    position: "absolute",
+    bottom: 0,
+    right: 0,
+    backgroundColor: "#3a2f4c",
+    width: 32,
+    height: 32,
+    borderRadius: 16,
+    justifyContent: "center",
+    alignItems: "center",
+    borderWidth: 2,
+    borderColor: "#2c2137",
   },
   email: {
     color: "#8b7b9e",
